@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import * as sexp from 'sexp';
 import {RegisterContent, RectangleContent, RegisterKind} from './registers';
 
 enum KeybindProgressMode {
@@ -25,6 +26,8 @@ export class Editor {
             this.isKillRepeated = false;
         });
     }
+
+
 
     setStatusBarMessage(text: string): vscode.Disposable {
         return vscode.window.setStatusBarMessage(text, 1000);
