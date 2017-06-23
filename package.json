@@ -258,6 +258,10 @@
         "when": "editorFocus && findWidgetVisible"
       },
       {
+        "key": "ctrl+alt+f",
+        "command": "emacs.C-M-f"
+      },
+      {
         "key": "ctrl+g",
         "command": "emacs.exitMarkMode",
         "when": "editorTextFocus && editorHasSelection"

@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import * as sexp from 'sexp';
+import * as sexp from './sexp';
 import {RegisterContent, RectangleContent, RegisterKind} from './registers';
 
 enum KeybindProgressMode {
@@ -27,8 +27,6 @@ export class Editor {
         });
     }
 
-
-
     setStatusBarMessage(text: string): vscode.Disposable {
         return vscode.window.setStatusBarMessage(text, 1000);
     }
@@ -53,6 +51,20 @@ export class Editor {
         let editor = vscode.window.activeTextEditor;
 
         editor.selection = new vscode.Selection(start, end);
+    }
+
+    getLineText(): void {
+        const ed = vscode.window.activeTextEditor;
+        const line = ed.document.getText();
+        const cursorPos = ed.selection.active.character;
+        const afterCursor = line.substr(cursorPos);
+        const whatAmI = sexp.sExpressionOrAtom(afterCursor);
+
+        if(whatAmI === sexp.Expression.Atom){
+            vscode.commands.executeCommand("cursorWordRight");
+        }else{
+            vscode.commands.executeCommand("cursorWordLeft");
+        }
     }
 
     /** Behave like Emacs kill command

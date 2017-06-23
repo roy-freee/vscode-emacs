@@ -7,6 +7,9 @@ export class Operation {
     constructor() {
         this.editor = new Editor();
         this.commandList = {
+            // 'C-M-f': () => {
+            //     this.editor.checkCursorPos();
+            // },
             'C-k': () => {
                 this.editor.kill();
             },
@@ -48,6 +51,9 @@ export class Operation {
             "C-x_r": () => {
                 this.editor.setRMode();
             },
+            "C-M-f": () => {
+                this.editor.getLineText();
+            }
         };
     }
 

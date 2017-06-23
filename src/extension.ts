@@ -12,7 +12,9 @@ export function activate(context: vscode.ExtensionContext): void {
             "C-x_u", "C-/",
 
             // R-Mode
-            "C-x_r"
+            "C-x_r",
+
+            "C-M-f"
         ],
         cursorMoves: string[] = [
             "cursorUp", "cursorDown", "cursorLeft", "cursorRight",
