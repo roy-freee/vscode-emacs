@@ -7,6 +7,11 @@
     "curly": true,
     "class-name": true,
     "semicolon": ["always"],
-    "triple-equals": true
+    "triple-equals": true,
+    "max-classes-per-file": [
+      true,
+      2
+    ],
+    "arrow-parens": false
   }
 }

@@ -1,12 +1,11 @@
-import * as vscode from 'vscode';
-import {Operation} from './operation';
+import * as vscode from "vscode";
+import {Operation} from "./operation";
 
-var inMarkMode: boolean = false;
+let inMarkMode: boolean = false;
 export function activate(context: vscode.ExtensionContext): void {
-    let op = new Operation(),
-        commandList: string[] = [
+    const op = new Operation();
+    const commandList: string[] = [
             "C-g",
-
             // Edit
             "C-k", "C-w", "M-w", "C-y", "C-x_C-o",
             "C-x_u", "C-/",
@@ -14,14 +13,15 @@ export function activate(context: vscode.ExtensionContext): void {
             // R-Mode
             "C-x_r",
 
-            "C-M-f"
-        ],
-        cursorMoves: string[] = [
+            "C-M-f",
+        ];
+
+    const cursorMoves: string[] = [
             "cursorUp", "cursorDown", "cursorLeft", "cursorRight",
             "cursorHome", "cursorEnd",
             "cursorWordLeft", "cursorWordRight",
             "cursorPageDown", "cursorPageUp",
-            "cursorTop", "cursorBottom"
+            "cursorTop", "cursorBottom",
         ];
 
     commandList.forEach(commandName => {
@@ -30,47 +30,47 @@ export function activate(context: vscode.ExtensionContext): void {
 
     cursorMoves.forEach(element => {
         context.subscriptions.push(vscode.commands.registerCommand(
-            "emacs."+element, () => {
+            "emacs." + element, () => {
                 vscode.commands.executeCommand(
                     inMarkMode ?
-                    element+"Select" :
-                    element
+                    element + "Select" :
+                    element,
                 );
-            })
+            }),
         )
     });
 
     // 'type' is not an "emacs." command and should be registered separately
-    context.subscriptions.push(vscode.commands.registerCommand("type", function (args) {
-		if (!vscode.window.activeTextEditor) {
-			return;
-		}
-		op.onType(args.text);        
+    context.subscriptions.push(vscode.commands.registerCommand("type", args => {
+        if (!vscode.window.activeTextEditor) {
+            return;
+        }
+        op.onType(args.text);
     }));
 
     initMarkMode(context);
 }
 
-export function deactivate(): void {
-}
+// export function deactivate(): void {
+// }
 
 function initMarkMode(context: vscode.ExtensionContext): void {
     context.subscriptions.push(vscode.commands.registerCommand(
-        'emacs.enterMarkMode', () => {
+        "emacs.enterMarkMode", () => {
             initSelection();
             inMarkMode = true;
             vscode.window.setStatusBarMessage("Mark Set", 1000);
-        })
+        }),
     );
 
     context.subscriptions.push(vscode.commands.registerCommand(
-        'emacs.exitMarkMode', () => {
+        "emacs.exitMarkMode", () => {
             vscode.commands.executeCommand("cancelSelection");
             if (inMarkMode) {
                 inMarkMode = false;
                 vscode.window.setStatusBarMessage("Mark deactivated", 1000);
             }
-        })
+        }),
     );
 }
 
@@ -79,6 +79,6 @@ function registerCommand(commandName: string, op: Operation): vscode.Disposable 
 }
 
 function initSelection(): void {
-    var currentPosition: vscode.Position = vscode.window.activeTextEditor.selection.active;
+    const currentPosition: vscode.Position = vscode.window.activeTextEditor.selection.active;
     vscode.window.activeTextEditor.selection = new vscode.Selection(currentPosition, currentPosition);
 }

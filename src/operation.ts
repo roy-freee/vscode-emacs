@@ -1,4 +1,4 @@
-import {Editor} from './editor';
+import {Editor} from "./editor";
 
 export class Operation {
     private editor: Editor;
@@ -7,61 +7,61 @@ export class Operation {
     constructor() {
         this.editor = new Editor();
         this.commandList = {
-            // 'C-M-f': () => {
-            //     this.editor.checkCursorPos();
-            // },
-            'C-k': () => {
+            "C-/": () => {
+                this.editor.undo();
+                this.editor.setStatusBarMessage("Undo!");
+            },
+            "C-M-b": () => {
+                this.editor.goToPrevSexp();
+            },
+            "C-M-f": () => {
+                this.editor.goToNextSexp();
+            },
+            "C-g": () => {
+                this.editor.setStatusBarMessage("Quit");
+            },
+            "C-k": () => {
                 this.editor.kill();
             },
-            'C-w': () => {
+            "C-w": () => {
                 if (this.editor.cut()) {
                     this.editor.setStatusBarMessage("Cut");
                 } else {
                     this.editor.setStatusBarMessage("Cut Error!");
                 }
             },
-            'M-w': () => {
+            "C-x_C-o": () => {
+                this.editor.deleteBlankLines();
+            },
+            "C-x_r": () => {
+                this.editor.setRMode();
+            },
+            "C-x_u": () => {
+                this.editor.undo();
+                this.editor.setStatusBarMessage("Undo!");
+            },
+            "C-y": () => {
+                if (this.editor.yank()) {
+                    this.editor.setStatusBarMessage("Yank");
+                } else {
+                    this.editor.setStatusBarMessage("Kill ring is empty");
+                }
+            },
+            "M-w": () => {
                 if (this.editor.copy()) {
                     this.editor.setStatusBarMessage("Copy");
                 } else {
                     this.editor.setStatusBarMessage("Copy Error!");
                 }
             },
-            'C-y': () => {
-                if(this.editor.yank()) {
-                    this.editor.setStatusBarMessage("Yank");
-                } else {
-                    this.editor.setStatusBarMessage("Kill ring is empty");
-                }
-            },
-            "C-x_C-o": () => {
-                this.editor.deleteBlankLines();
-            },
-            "C-x_u": () => {
-                this.editor.undo();
-                this.editor.setStatusBarMessage("Undo!");
-            },
-            "C-/": () => {
-                this.editor.undo();
-                this.editor.setStatusBarMessage("Undo!");
-            },
-            'C-g': () => {
-                this.editor.setStatusBarMessage("Quit");
-            },
-            "C-x_r": () => {
-                this.editor.setRMode();
-            },
-            "C-M-f": () => {
-                this.editor.getLineText();
-            }
         };
     }
 
-    getCommand(commandName: string): (...args: any[]) => any {
+    public getCommand(commandName: string): (...args: any[]) => any {
         return this.commandList[commandName];
     }
 
-    onType(text: string): void {
+    public onType(text: string): void {
         this.editor.onType(text);
     }
 }
