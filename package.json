@@ -173,6 +173,14 @@
         "when": "findWidgetVisible"
       },
       {
+        "key": "ctrl+x 0",
+        "command": "workbench.action.closeActiveEditor"
+      },
+      {
+        "key": "ctrl+x 1",
+        "command": "workbench.action.closeEditorsInGroup"
+      },
+      {
         "key": "ctrl+alt+n",
         "command": "editor.action.addSelectionToNextFindMatch",
         "when": "editorFocus"
