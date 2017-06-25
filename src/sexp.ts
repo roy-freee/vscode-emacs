@@ -13,10 +13,10 @@ export enum Expression {
 }
 
 export function turnToSexp(text: string): string[][] {
-  const start = new RegExp("[\{\(\[\<]");
-  const end = new RegExp("[\}\)\]\>]");
-  const isString = new RegExp("[\"\']");
-  const isWhitespace = new RegExp("\s");
+  const start = new RegExp(/[\{\(\[\<]/);
+  const end = new RegExp(/[\}\)\]\>]/);
+  const isString = new RegExp(/[\"\']/);
+  const isWhitespace = new RegExp(/\s+/);
 
   const sexp = [[]];
   let word = "";
@@ -34,10 +34,12 @@ export function turnToSexp(text: string): string[][] {
 
       if (end.test(char)) {
         const temp = sexp.pop();
-        sexp[last].push(temp);
+        sexp[last - 1].push(temp);
       }
     } else if (isString.test(char)) {
       inStr = !inStr;
+    } else {
+      word = word.concat(char);
     }
   }
 

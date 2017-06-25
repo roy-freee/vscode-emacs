@@ -66,15 +66,31 @@ export class Editor {
         editor.selection = new vscode.Selection(start, end);
     }
 
-    public getLineText(): void {
+    public goToNextSexp(): void {
         const ed = vscode.window.activeTextEditor;
         const line = ed.document.getText();
         const cursorPos = ed.selection.active.character;
         const afterCursor = line.substr(cursorPos);
         const whatAmI = sexp.sExpressionOrAtom(afterCursor);
 
+        const placeholder = sexp.turnToSexp(line);
         if (whatAmI === sexp.Expression.Atom) {
             vscode.commands.executeCommand("cursorWordRight");
+        } else {
+            vscode.commands.executeCommand("cursorWordLeft");
+        }
+    }
+
+    public goToPrevSexp(): void {
+        const ed = vscode.window.activeTextEditor;
+        const line = ed.document.getText();
+        const cursorPos = ed.selection.active.character;
+        const afterCursor = line.substr(cursorPos);
+        const whatAmI = sexp.sExpressionOrAtom(afterCursor);
+
+        const placeholder = sexp.turnToSexp(line);
+        if (whatAmI === sexp.Expression.Atom) {
+            vscode.commands.executeCommand("cursorWordLeft");
         } else {
             vscode.commands.executeCommand("cursorWordLeft");
         }
