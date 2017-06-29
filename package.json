@@ -270,6 +270,10 @@
         "command": "emacs.C-M-f"
       },
       {
+        "key": "ctrl+alt+b",
+        "command": "emacs.C-M-b"
+      },
+      {
         "key": "ctrl+g",
         "command": "emacs.exitMarkMode",
         "when": "editorTextFocus && editorHasSelection"
@@ -351,6 +355,11 @@
       {
         "key": "ctrl+x ctrl+s",
         "command": "workbench.action.files.save",
+        "when": "editorTextFocus"
+      },
+      {
+        "key": "ctrl+x s",
+        "command": "workbench.action.files.saveAll",
         "when": "editorTextFocus"
       },
       {

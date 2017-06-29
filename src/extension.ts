@@ -14,6 +14,7 @@ export function activate(context: vscode.ExtensionContext): void {
             "C-x_r",
 
             "C-M-f",
+            "C-M-b",
         ];
 
     const cursorMoves: string[] = [

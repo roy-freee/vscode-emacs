@@ -1,6 +1,6 @@
-# vscode-emacs
+# vscode-emacs-improved
 
-This is emacs like plugin for Visual Studio Code.
+This project is a fork of the popular [Emacs Keymap](https://marketplace.visualstudio.com/items?itemName=hiro-sun.vscode-emacs) by hiro-sun. That project is no longer active and my goal was to add s-expression movement and selection as well as window management keybindings. Feel free to request features on the github page for this extension.
 
 ## Operation
 Use `Shift+DEL` to cut to clipboard, the `Ctrl+C` is not overridden.
