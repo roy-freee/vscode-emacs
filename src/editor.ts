@@ -77,7 +77,8 @@ export class Editor {
         if (whatAmI === sexp.Expression.Atom) {
             vscode.commands.executeCommand("cursorWordRight");
         } else {
-            vscode.commands.executeCommand("cursorWordLeft");
+            vscode.commands.executeCommand("editor.action.jumpToBracket");
+            vscode.commands.executeCommand("cursorRight");
         }
     }
 
