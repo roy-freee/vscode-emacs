@@ -11,6 +11,9 @@ export class Operation {
                 this.editor.undo();
                 this.editor.setStatusBarMessage("Undo!");
             },
+            "C-M-Space": () => {
+                this.editor.goToNextSexp(true);
+            },
             "C-M-b": () => {
                 this.editor.goToPrevSexp();
             },

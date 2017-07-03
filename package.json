@@ -104,6 +104,11 @@
         "when": "editorTextFocus"
       },
       {
+        "key": "alt+.",
+        "command": "editor.action.goToDeclaration",
+        "when": "editorTextFocus"
+      },
+      {
         "key": "ctrl+e",
         "command": "emacs.cursorEnd",
         "when": "editorTextFocus"
@@ -349,6 +354,11 @@
         "when": "editorTextFocus"
       },
       {
+        "key": "ctrl+alt+space",
+        "command": "emacs.C-M-Space",
+        "when": "editorTextFocus"
+      },
+      {
         "key": "ctrl+x ctrl+f",
         "command": "workbench.action.files.openFileFolder"
       },
@@ -427,10 +437,6 @@
         "command": "workbench.action.showCommands"
       },
       {
-        "key": "ctrl+alt+space",
-        "command": "workbench.action.toggleSidebarVisibility"
-      },
-      {
         "key": "ctrl+x b",
         "command": "workbench.action.quickOpen"
       },
@@ -442,6 +448,10 @@
         "key": "ctrl+x r",
         "command": "emacs.C-x_r",
         "when": "editorTextFocus"
+      },
+      {
+        "key": "ctrl+x k",
+        "command": "workbench.action.closeActiveEditor"
       }
     ]
   },
@@ -456,8 +466,5 @@
     "vscode": "^1.0.3",
     "@types/mocha": "^2.2.32",
     "@types/node": "^6.0.40"
-  },
-  "dependencies": {
-    "sexpr-plus": "^7.0.0"
   }
 }

@@ -57,7 +57,17 @@ export class Editor {
     }
 
     public getSelection(): vscode.Selection {
-        return vscode.window.activeTextEditor.selection;
+        const ed = vscode.window.activeTextEditor;
+        let selection = null;
+
+        // check if there is no selection
+        if (ed.selection.isEmpty) {
+            selection = ed.selection;
+        } else {
+            selection = ed.selections[0];
+        }
+
+        return selection;
     }
 
     public setSelection(start: vscode.Position, end: vscode.Position): void {
@@ -66,19 +76,39 @@ export class Editor {
         editor.selection = new vscode.Selection(start, end);
     }
 
-    public goToNextSexp(): void {
+    public goToNextSexp(activateMarkMode?: boolean): void {
         const ed = vscode.window.activeTextEditor;
-        const line = ed.document.getText();
-        const cursorPos = ed.selection.active.character;
-        const afterCursor = line.substr(cursorPos);
+        const startPos = this.getSelection();
+        const nextPos = new vscode.Position(startPos.active.line, startPos.active.character + 1);
+        const range = new vscode.Range(startPos.end, nextPos);
+
+        const afterCursor = ed.document.getText(range);
         const whatAmI = sexp.sExpressionOrAtom(afterCursor);
 
-        const placeholder = sexp.turnToSexp(line);
         if (whatAmI === sexp.Expression.Atom) {
-            vscode.commands.executeCommand("cursorWordRight");
+            vscode.commands.executeCommand("cursorWordRight").then(() => {
+                if (activateMarkMode) {
+                    const editor = vscode.window.activeTextEditor;
+                    const pos = this.getSelection();
+                    this.setSelection(startPos.start, pos.end);
+                }
+            });
         } else {
-            vscode.commands.executeCommand("editor.action.jumpToBracket");
-            vscode.commands.executeCommand("cursorRight");
+            vscode.commands.executeCommand("editor.action.jumpToBracket").then(() => {
+                vscode.commands.executeCommand("cursorRight").then(() => {
+                    if (activateMarkMode) {
+                        const editor = vscode.window.activeTextEditor;
+                        const pos = this.getSelection();
+                        this.setSelection(startPos.start, pos.end);
+                    }
+                });
+            });
+        }
+
+        const newCursorPos = this.getSelection();
+
+        if (activateMarkMode) {
+            this.setSelection(startPos.active, newCursorPos.active);
         }
     }
 
