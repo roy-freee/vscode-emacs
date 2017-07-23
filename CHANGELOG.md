@@ -1,3 +1,8 @@
+## 0.2 (2017-07-24 My Fork)
+- S-Expression Movement and Selection
+- Buffer split command and close other buffer command
+- Save all buffers
+
 ## 0.1.1 (2016-11-04)
 - Fix #24: C-g does not cancel suggestions and prompts
 - Update vscode engine
