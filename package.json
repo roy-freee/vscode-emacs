@@ -29,7 +29,8 @@
     ],
     "main": "./out/src/extension",
     "contributes": {
-        "commands": [{
+        "commands": [
+            {
                 "command": "emacs.C-k",
                 "title": "Cut the text from cursor to line end and save it in emacs kill ring"
             },
@@ -46,7 +47,8 @@
                 "title": "Yank (Paste) emacs kill ring"
             }
         ],
-        "keybindings": [{
+        "keybindings": [
+            {
                 "key": "right",
                 "command": "emacs.cursorRight",
                 "when": "editorTextFocus"

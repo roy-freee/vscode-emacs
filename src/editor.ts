@@ -95,7 +95,7 @@ export class Editor {
             });
         } else {
             vscode.commands.executeCommand("editor.action.jumpToBracket").then(() => {
-                vscode.commands.executeCommand("cursorRight").then(() => {
+                vscode.commands.executeCommand("cursorWordRight").then(() => {
                     if (activateMarkMode) {
                         const editor = vscode.window.activeTextEditor;
                         const pos = this.getSelection();
@@ -105,11 +105,11 @@ export class Editor {
             });
         }
 
-        const newCursorPos = this.getSelection();
+        // const newCursorPos = this.getSelection();
 
-        if (activateMarkMode) {
-            this.setSelection(startPos.active, newCursorPos.active);
-        }
+        // if (activateMarkMode) {
+        //     this.setSelection(startPos.active, newCursorPos.active);
+        // }
     }
 
     public goToPrevSexp(): void {
