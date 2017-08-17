@@ -5,26 +5,26 @@ let inMarkMode: boolean = false;
 export function activate(context: vscode.ExtensionContext): void {
     const op = new Operation();
     const commandList: string[] = [
-            "C-g",
-            // Edit
-            "C-k", "C-w", "M-w", "C-y", "C-x_C-o",
-            "C-x_u", "C-/",
+        "C-g",
+        // Edit
+        "C-k", "C-w", "M-w", "C-y", "C-x_C-o",
+        "C-x_u", "C-/",
 
-            // R-Mode
-            "C-x_r",
+        // R-Mode
+        "C-x_r",
 
-            "C-M-f",
-            "C-M-b",
-            "C-M-Space",
-        ];
+        "C-M-f",
+        "C-M-b",
+        "C-M-Space",
+    ];
 
     const cursorMoves: string[] = [
-            "cursorUp", "cursorDown", "cursorLeft", "cursorRight",
-            "cursorHome", "cursorEnd",
-            "cursorWordLeft", "cursorWordRight",
-            "cursorPageDown", "cursorPageUp",
-            "cursorTop", "cursorBottom",
-        ];
+        "cursorUp", "cursorDown", "cursorLeft", "cursorRight",
+        "cursorHome", "cursorEnd",
+        "cursorWordLeft", "cursorWordRight",
+        "cursorPageDown", "cursorPageUp",
+        "cursorTop", "cursorBottom",
+    ];
 
     commandList.forEach(commandName => {
         context.subscriptions.push(registerCommand(commandName, op));
