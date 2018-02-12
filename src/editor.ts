@@ -1,5 +1,9 @@
 import * as vscode from "vscode";
-import {RectangleContent, RegisterContent, RegisterKind} from "./registers";
+import {
+    RectangleContent,
+    RegisterContent,
+    RegisterKind
+} from "./registers";
 import * as sexp from "./sexp";
 
 enum KeybindProgressMode {
@@ -40,12 +44,44 @@ export class Editor {
         });
     }
 
-    public setStatusBarMessage(text: string): vscode.Disposable {
+    setStatusBarMessage = (text: string): vscode.Disposable => {
         return vscode.window.setStatusBarMessage(text, 1000);
     }
 
-    public setStatusBarPermanentMessage(text: string): vscode.Disposable {
+    setStatusBarPermanentMessage = (text: string): vscode.Disposable => {
         return vscode.window.setStatusBarMessage(text);
+    }
+
+    changeCaseRegion = (casing: "upper" | "lower" | "capitalise") => {
+        const region = vscode.window.activeTextEditor.selection;
+        if (region !== null) {
+            const currentSelection = this.getSelectedText(region, vscode.window.activeTextEditor.document);
+            const newText = 
+                casing === "upper" ? currentSelection.text.toUpperCase() : 
+                casing === "lower" ? currentSelection.text.toLowerCase() :
+                currentSelection.text.charAt(0).toUpperCase() + currentSelection.text.slice(1);;
+
+            vscode.window.activeTextEditor.edit(builder => {
+                builder.replace(currentSelection.range, newText);
+            });
+        } else {
+            this.setStatusBarMessage("No region selected. Command aborted.");
+        }
+    }
+
+    public getSelectedText(selection: vscode.Selection, document: vscode.TextDocument): { text: string, range: vscode.Range } | undefined {
+        let range: vscode.Range;
+    
+        if (selection.start.line === selection.end.line && selection.start.character === selection.end.character) {
+            return undefined;
+        } else {
+            range = new vscode.Range(selection.start, selection.end);
+        }
+    
+        return {
+            text: document.getText(range),
+            range
+        };
     }
 
     public getSelectionRange(): vscode.Range {

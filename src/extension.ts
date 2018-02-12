@@ -13,9 +13,14 @@ export function activate(context: vscode.ExtensionContext): void {
         // R-Mode
         "C-x_r",
 
+        // S-expression movement
         "C-M-f",
         "C-M-b",
         "C-M-Space",
+
+        // Case changes
+        "uppercaseRegion",
+        "lowercaseRegion"
     ];
 
     const cursorMoves: string[] = [
