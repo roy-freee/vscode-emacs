@@ -57,6 +57,12 @@ export class Operation {
                     this.editor.setStatusBarMessage("Copy Error!");
                 }
             },
+            "uppercaseRegion": () => {
+                this.editor.changeCaseRegion("upper");
+            },
+            "lowercaseRegion": () => {
+                this.editor.changeCaseRegion("lower");
+            }
         };
     }
 
