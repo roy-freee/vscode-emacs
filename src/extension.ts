@@ -20,7 +20,10 @@ export function activate(context: vscode.ExtensionContext): void {
 
         // Case changes
         "uppercaseRegion",
-        "lowercaseRegion"
+        "lowercaseRegion",
+        "uppercaseWord",
+        "lowercaseWord",
+        "capitaliseWord",
     ];
 
     const cursorMoves: string[] = [
