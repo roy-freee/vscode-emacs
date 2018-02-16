@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 import {
     RectangleContent,
     RegisterContent,
-    RegisterKind
+    RegisterKind,
 } from "./registers";
 import * as sexp from "./sexp";
 
@@ -44,22 +44,22 @@ export class Editor {
         });
     }
 
-    setStatusBarMessage = (text: string): vscode.Disposable => {
+    public setStatusBarMessage = (text: string): vscode.Disposable => {
         return vscode.window.setStatusBarMessage(text, 1000);
     }
 
-    setStatusBarPermanentMessage = (text: string): vscode.Disposable => {
+    public setStatusBarPermanentMessage = (text: string): vscode.Disposable => {
         return vscode.window.setStatusBarMessage(text);
     }
 
-    changeCaseRegion = (casing: "upper" | "lower" | "capitalise") => {
+    public changeCaseRegion = (casing: "upper" | "lower" | "capitalise") => {
         const region = vscode.window.activeTextEditor.selection;
         if (region !== null) {
             const currentSelection = this.getSelectedText(region, vscode.window.activeTextEditor.document);
-            const newText = 
-                casing === "upper" ? currentSelection.text.toUpperCase() : 
+            const newText =
+                casing === "upper" ? currentSelection.text.toUpperCase() :
                 casing === "lower" ? currentSelection.text.toLowerCase() :
-                currentSelection.text.charAt(0).toUpperCase() + currentSelection.text.slice(1);;
+                currentSelection.text.charAt(0).toUpperCase() + currentSelection.text.slice(1);
 
             vscode.window.activeTextEditor.edit(builder => {
                 builder.replace(currentSelection.range, newText);
@@ -69,18 +69,20 @@ export class Editor {
         }
     }
 
-    public getSelectedText(selection: vscode.Selection, document: vscode.TextDocument): { text: string, range: vscode.Range } | undefined {
+    public getSelectedText(
+        selection: vscode.Selection,
+        document: vscode.TextDocument): { text: string, range: vscode.Range } | undefined {
         let range: vscode.Range;
-    
+
         if (selection.start.line === selection.end.line && selection.start.character === selection.end.character) {
             return undefined;
         } else {
             range = new vscode.Range(selection.start, selection.end);
         }
-    
+
         return {
+            range,
             text: document.getText(range),
-            range
         };
     }
 

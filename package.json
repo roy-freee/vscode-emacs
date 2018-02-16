@@ -22,7 +22,8 @@
         "shortcuts",
         "keybindings",
         "behavior",
-        "killring"
+        "killring",
+        "cua"
     ],
     "activationEvents": [
         "*"
@@ -174,6 +175,10 @@
                 "key": "ctrl+r",
                 "command": "editor.action.previousMatchFindAction",
                 "when": "findWidgetVisible"
+            },
+            {
+                "key": "ctrl+x",
+                "command": "emacs.cuaCut"
             },
             {
                 "key": "ctrl+x 0",
