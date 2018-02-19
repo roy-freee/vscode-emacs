@@ -79,21 +79,44 @@ export class Editor {
         }
     }
 
-    public changeCaseRegion = (casing: "upper" | "lower" | "capitalise") => {
+    // public changeCaseRegion = (casing: "upper" | "lower" | "capitalise") => {
+    //     const region = vscode.window.activeTextEditor.selection;
+    //     if (region !== null) {
+    //         const currentSelection = this.getSelectedText(region, vscode.window.activeTextEditor.document);
+    //         const newText =
+    //             casing === "upper" ? currentSelection.text.toUpperCase() :
+    //             casing === "lower" ? currentSelection.text.toLowerCase() :
+    //             currentSelection.text.charAt(0).toUpperCase() + currentSelection.text.slice(1);
+    public changeCase = (casing: "upper" | "lower" | "capitalise", type: "position" | "region") => {
         const region = vscode.window.activeTextEditor.selection;
-        if (region !== null) {
-            const currentSelection = this.getSelectedText(region, vscode.window.activeTextEditor.document);
-            const newText =
-                casing === "upper" ? currentSelection.text.toUpperCase() :
-                casing === "lower" ? currentSelection.text.toLowerCase() :
-                currentSelection.text.charAt(0).toUpperCase() + currentSelection.text.slice(1);
+        let currentSelection: {
+            text: string,
+            range: vscode.Range,
+        };
+        if (type === "position" && region.start.character === region.end.character) {
+            const document = vscode.window.activeTextEditor.document;
+            const range = document.getWordRangeAtPosition(region.start);
 
-            vscode.window.activeTextEditor.edit(builder => {
-                builder.replace(currentSelection.range, newText);
-            });
+            currentSelection = {
+                text: document.getText(range),
+                range,
+            };
+        } else if (type === "region" && region.start.character !== region.end.character) {
+            currentSelection = this.getSelectedText(region, vscode.window.activeTextEditor.document);
         } else {
             this.setStatusBarMessage("No region selected. Command aborted.");
+            return;
         }
+
+
+        const newText =
+            casing === "upper" ? currentSelection.text.toUpperCase() :
+            casing === "lower" ? currentSelection.text.toLowerCase() :
+            currentSelection.text.charAt(0).toUpperCase() + currentSelection.text.slice(1);
+
+        vscode.window.activeTextEditor.edit(builder => {
+            builder.replace(currentSelection.range, newText);
+        });
     }
 
     public getSelectedText(

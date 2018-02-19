@@ -58,10 +58,10 @@ export class Operation {
                 }
             },
             "uppercaseRegion": () => {
-                this.editor.changeCaseRegion("upper");
+                this.editor.changeCase("upper", "region");
             },
             "lowercaseRegion": () => {
-                this.editor.changeCaseRegion("lower");
+                this.editor.changeCase("lower", "region");
             },
             "cuaCut": () => {
                 this.editor.cuaCut();
@@ -74,6 +74,16 @@ export class Operation {
             },
             "toggleCuaMode": () => {
                 this.editor.toggleCuaMode();
+                this.editor.changeCase("lower", "region");
+            },
+            "uppercaseWord": () => {
+                this.editor.changeCase("upper", "position");
+            },
+            "lowercaseWord": () => {
+                this.editor.changeCase("lower", "position");
+            },
+            "capitaliseWord": () => {
+                this.editor.changeCase("capitalise", "position");
             },
         };
     }

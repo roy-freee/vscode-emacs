@@ -472,6 +472,18 @@
             {
                 "key": "ctrl+x ctrl+l",
                 "command": "emacs.lowercaseRegion"
+            },
+            {
+                "key": "alt+u",
+                "command": "emacs.uppercaseWord"
+            },
+            {
+                "key": "alt+l",
+                "command": "emacs.lowercaseWord"
+            },
+            {
+                "key": "alt+c",
+                "command": "emacs.capitaliseWord"
             }
         ]
     },

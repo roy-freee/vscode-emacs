@@ -21,6 +21,9 @@ export function activate(context: vscode.ExtensionContext): void {
         // Case changes
         "uppercaseRegion",
         "lowercaseRegion",
+        "uppercaseWord",
+        "lowercaseWord",
+        "capitaliseWord",
 
         "cuaCut",
         "cuaPaste",
