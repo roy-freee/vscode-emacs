@@ -186,7 +186,7 @@
                 "when": "findWidgetVisible"
             },
             {
-                "key": "ctrl+x",
+                "key": "ctrl+x ctrl+x",
                 "command": "emacs.cuaCut"
             },
             {

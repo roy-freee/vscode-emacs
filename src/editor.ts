@@ -46,47 +46,59 @@ export class Editor {
         });
     }
 
-    public setStatusBarMessage = (text: string): vscode.Disposable => {
-        return vscode.window.setStatusBarMessage(text, 1000);
+    public setStatusBarMessage = (text: string, duration: number = 1000): vscode.Disposable => {
+        return vscode.window.setStatusBarMessage(text, duration);
     }
 
     public setStatusBarPermanentMessage = (text: string): vscode.Disposable => {
         return vscode.window.setStatusBarMessage(text);
     }
 
+    private isRegion = (): boolean => {
+        let currRegion = vscode.window.activeTextEditor.selection;
+        return !currRegion.start.isEqual(currRegion.end);
+    }
+
     public cuaCut = () => {
         if (this.isCuaMode) {
-            this.cut();
+            if(this.isRegion()){
+                this.cut();
+                this.setStatusBarMessage("Region cut", 2000);
+            } else {
+                this.setStatusBarMessage("Not in region", 2000);
+            }
         }
     }
 
     public cuaCopy = () => {
         if (this.isCuaMode) {
-            this.copy();
+            if(this.isRegion()){
+                this.copy();
+                this.setStatusBarMessage("Region copied", 2000);
+            } else {
+                this.setStatusBarMessage("Not in region", 2000);
+            }
         }
     }
 
     public cuaPaste = () => {
         if (this.isCuaMode) {
-            this.yank();
+            if(this.isRegion()){
+                this.yank();
+                this.setStatusBarMessage("Region pasted", 2000);
+            } else {
+                this.setStatusBarMessage("Not in region", 2000);
+            }
         }
     }
 
     public toggleCuaMode = () => {
         this.isCuaMode = !this.isCuaMode;
         if (this.isCuaMode) {
-            this.setStatusBarMessage("CUA Mode Active");
+            this.setStatusBarMessage("CUA Mode Active", 3000);
         }
     }
 
-    // public changeCaseRegion = (casing: "upper" | "lower" | "capitalise") => {
-    //     const region = vscode.window.activeTextEditor.selection;
-    //     if (region !== null) {
-    //         const currentSelection = this.getSelectedText(region, vscode.window.activeTextEditor.document);
-    //         const newText =
-    //             casing === "upper" ? currentSelection.text.toUpperCase() :
-    //             casing === "lower" ? currentSelection.text.toLowerCase() :
-    //             currentSelection.text.charAt(0).toUpperCase() + currentSelection.text.slice(1);
     public changeCase = (casing: "upper" | "lower" | "capitalise", type: "position" | "region") => {
         const region = vscode.window.activeTextEditor.selection;
         let currentSelection: {
