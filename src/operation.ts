@@ -62,7 +62,19 @@ export class Operation {
             },
             "lowercaseRegion": () => {
                 this.editor.changeCaseRegion("lower");
-            }
+            },
+            "cuaCut": () => {
+                this.editor.cuaCut();
+            },
+            "cuaPaste": () => {
+                this.editor.cuaPaste();
+            },
+            "cuaCopy": () => {
+                this.editor.cuaCopy();
+            },
+            "toggleCuaMode": () => {
+                this.editor.toggleCuaMode();
+            },
         };
     }
 

@@ -6,12 +6,13 @@
     "no-unused-variable": true,
     "curly": true,
     "class-name": true,
-    "semicolon": ["always"],
+    "semicolon": true,
     "triple-equals": true,
     "max-classes-per-file": [
       true,
       2
     ],
-    "arrow-parens": false
+    "arrow-parens": false,
+    "object-literal-sort-keys": false
   }
 }

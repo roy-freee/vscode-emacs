@@ -20,15 +20,19 @@ export function activate(context: vscode.ExtensionContext): void {
 
         // Case changes
         "uppercaseRegion",
-        "lowercaseRegion"
+        "lowercaseRegion",
+
+        "cuaCut",
+        "cuaPaste",
+        "cuaCopy",
+        "toggleCuaMode",
     ];
 
     const cursorMoves: string[] = [
         "cursorUp", "cursorDown", "cursorLeft", "cursorRight",
         "cursorHome", "cursorEnd",
         "cursorWordLeft", "cursorWordRight",
-        "cursorPageDown", "cursorPageUp",
-        "cursorTop", "cursorBottom",
+        "cursorPageUp", "cursorTop", "cursorBottom",
     ];
 
     commandList.forEach(commandName => {
@@ -44,7 +48,7 @@ export function activate(context: vscode.ExtensionContext): void {
                     element,
                 );
             }),
-        )
+        );
     });
 
     // 'type' is not an "emacs." command and should be registered separately

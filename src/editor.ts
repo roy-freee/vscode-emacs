@@ -13,7 +13,7 @@ enum KeybindProgressMode {
     RModeI, // 'Insert Register content into buffer' keybinding [started by 'C-x+r+i'] is currently in progress
     AMode,  // (FUTURE, TBD) Abbrev keybinding  [started by 'C-x+a'] is currently in progress
     MacroRecordingMode,  // (FUTURE, TBD) Emacs macro recording [started by 'Ctrl-x+('] is currently in progress
-};
+}
 
 export class Editor {
     public static delete(range: vscode.Range = null): Thenable<boolean> {
@@ -29,6 +29,7 @@ export class Editor {
         });
     }
 
+    private isCuaMode: boolean;
     private killRing: string;
     private isKillRepeated: boolean;
     private keybindProgressMode: KeybindProgressMode;
@@ -37,6 +38,7 @@ export class Editor {
     constructor() {
         this.killRing = "";
         this.isKillRepeated = false;
+        this.isCuaMode = false;
         this.keybindProgressMode = KeybindProgressMode.None;
         this.registersStorage = {};
         vscode.window.onDidChangeTextEditorSelection(() => {
@@ -50,6 +52,31 @@ export class Editor {
 
     public setStatusBarPermanentMessage = (text: string): vscode.Disposable => {
         return vscode.window.setStatusBarMessage(text);
+    }
+
+    public cuaCut = () => {
+        if (this.isCuaMode) {
+            this.cut();
+        }
+    }
+
+    public cuaCopy = () => {
+        if (this.isCuaMode) {
+            this.copy();
+        }
+    }
+
+    public cuaPaste = () => {
+        if (this.isCuaMode) {
+            this.yank();
+        }
+    }
+
+    public toggleCuaMode = () => {
+        this.isCuaMode = !this.isCuaMode;
+        if (this.isCuaMode) {
+            this.setStatusBarMessage("CUA Mode Active");
+        }
     }
 
     public changeCaseRegion = (casing: "upper" | "lower" | "capitalise") => {

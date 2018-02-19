@@ -45,6 +45,10 @@
             {
                 "command": "emacs.C-y",
                 "title": "Yank (Paste) emacs kill ring"
+            },
+            {
+                "command": "emacs.toggleCuaMode",
+                "title": "Toggle cua mode (conventional cut-copy-paste shortcuts)"
             }
         ],
         "keybindings": [{
@@ -128,8 +132,13 @@
                 "when": "editorTextFocus && !suggestWidgetVisible"
             },
             {
+                "key": "ctrl+c",
+                "command": "emacs.cuaCopy",
+                "when": "editorTextFocus && !suggestWidgetVisible"
+            },
+            {
                 "key": "ctrl+v",
-                "command": "emacs.cursorPageDown",
+                "command": "emacs.cuaPaste",
                 "when": "editorTextFocus && !suggestWidgetVisible"
             },
             {
