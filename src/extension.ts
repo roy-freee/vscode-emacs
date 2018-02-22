@@ -35,7 +35,7 @@ export function activate(context: vscode.ExtensionContext): void {
         "cursorUp", "cursorDown", "cursorLeft", "cursorRight",
         "cursorHome", "cursorEnd",
         "cursorWordLeft", "cursorWordRight",
-        "cursorPageUp", "cursorTop", "cursorBottom",
+        "cursorPageUp", "cursorPageDown", "cursorTop", "cursorBottom",
     ];
 
     commandList.forEach(commandName => {

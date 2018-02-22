@@ -54,14 +54,9 @@ export class Editor {
         return vscode.window.setStatusBarMessage(text);
     }
 
-    private isRegion = (): boolean => {
-        let currRegion = vscode.window.activeTextEditor.selection;
-        return !currRegion.start.isEqual(currRegion.end);
-    }
-
     public cuaCut = () => {
         if (this.isCuaMode) {
-            if(this.isRegion()){
+            if (this.isRegion()) {
                 this.cut();
                 this.setStatusBarMessage("Region cut", 2000);
             } else {
@@ -72,7 +67,7 @@ export class Editor {
 
     public cuaCopy = () => {
         if (this.isCuaMode) {
-            if(this.isRegion()){
+            if (this.isRegion()) {
                 this.copy();
                 this.setStatusBarMessage("Region copied", 2000);
             } else {
@@ -83,12 +78,14 @@ export class Editor {
 
     public cuaPaste = () => {
         if (this.isCuaMode) {
-            if(this.isRegion()){
+            if (this.isRegion()) {
                 this.yank();
                 this.setStatusBarMessage("Region pasted", 2000);
             } else {
                 this.setStatusBarMessage("Not in region", 2000);
             }
+        } else {
+            vscode.commands.executeCommand("emacs.cursorPageDown");
         }
     }
 
@@ -119,7 +116,6 @@ export class Editor {
             this.setStatusBarMessage("No region selected. Command aborted.");
             return;
         }
-
 
         const newText =
             casing === "upper" ? currentSelection.text.toUpperCase() :
@@ -445,6 +441,11 @@ export class Editor {
             }
         }
         return;
+    }
+
+    private isRegion = (): boolean => {
+        const currRegion = vscode.window.activeTextEditor.selection;
+        return !currRegion.start.isEqual(currRegion.end);
     }
 
     private killEndOfLine(saveIsKillRepeated: boolean, range: vscode.Range): void {
