@@ -30,21 +30,33 @@ export class Editor {
     }
 
     private isCuaMode: boolean;
+    private isMarkMode: boolean;
     private killRing: string;
     private isKillRepeated: boolean;
     private keybindProgressMode: KeybindProgressMode;
     private registersStorage: { [key: string]: RegisterContent; };
 
+    private statusBarItem: vscode.StatusBarItem;
+    private statusBarText: string;
+
     constructor() {
         this.killRing = "";
         this.isKillRepeated = false;
         this.isCuaMode = false;
+        this.isMarkMode = false;
         this.keybindProgressMode = KeybindProgressMode.None;
         this.registersStorage = {};
         vscode.window.onDidChangeTextEditorSelection(() => {
             this.isKillRepeated = false;
         });
+
+        this.statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
+        this.statusBarText = `$(pencil) EMACS Minor Modes:`;
+        this.statusBarItem.text = this.statusBarText;
+        this.statusBarItem.show();
     }
+
+    public markMode = () => this.isMarkMode;
 
     public setStatusBarMessage = (text: string, duration: number = 1000): vscode.Disposable => {
         return vscode.window.setStatusBarMessage(text, duration);
@@ -52,6 +64,16 @@ export class Editor {
 
     public setStatusBarPermanentMessage = (text: string): vscode.Disposable => {
         return vscode.window.setStatusBarMessage(text);
+    }
+    public toggleMarkMode = () => {
+        if (this.isMarkMode) {
+            vscode.commands.executeCommand("cancelSelection");
+            this.isMarkMode = false;
+        } else {
+            const currentPosition: vscode.Position = vscode.window.activeTextEditor.selection.active;
+            vscode.window.activeTextEditor.selection = new vscode.Selection(currentPosition, currentPosition);
+            this.isMarkMode = true;
+        }
     }
 
     public cuaCut = () => {
@@ -75,7 +97,6 @@ export class Editor {
             }
         }
     }
-
     public cuaPaste = () => {
         if (this.isCuaMode) {
             if (this.isRegion()) {
@@ -88,7 +109,6 @@ export class Editor {
             vscode.commands.executeCommand("emacs.cursorPageDown");
         }
     }
-
     public toggleCuaMode = () => {
         this.isCuaMode = !this.isCuaMode;
         if (this.isCuaMode) {

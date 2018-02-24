@@ -277,7 +277,7 @@
             },
             {
                 "key": "ctrl+g",
-                "command": "emacs.C-g",
+                "command": "emacs.abortCommand",
                 "when": "editorTextFocus"
             },
             {

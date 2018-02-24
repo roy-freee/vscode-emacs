@@ -1,7 +1,7 @@
 import {Editor} from "./editor";
 
 export class Operation {
-    private editor: Editor;
+    public editor: Editor;
     private commandList: { [key: string]: (...args: any[]) => any, thisArgs?: any } = {};
 
     constructor() {
@@ -20,8 +20,11 @@ export class Operation {
             "C-M-f": () => {
                 this.editor.goToNextSexp();
             },
-            "C-g": () => {
+            "abortCommand": () => {
                 this.editor.setStatusBarMessage("Quit");
+                if (this.editor.markMode()) {
+                    this.editor.toggleMarkMode();
+                }
             },
             "C-k": () => {
                 this.editor.kill();
@@ -57,10 +60,10 @@ export class Operation {
                     this.editor.setStatusBarMessage("Copy Error!");
                 }
             },
-            "uppercaseRegion": () => {
-                this.editor.changeCase("upper", "region");
-            },
-            "lowercaseRegion": () => {
+
+            // cua mode
+            "toggleCuaMode": () => {
+                this.editor.toggleCuaMode();
                 this.editor.changeCase("lower", "region");
             },
             "cuaCut": () => {
@@ -72,8 +75,12 @@ export class Operation {
             "cuaCopy": () => {
                 this.editor.cuaCopy();
             },
-            "toggleCuaMode": () => {
-                this.editor.toggleCuaMode();
+
+            // case-switching
+            "uppercaseRegion": () => {
+                this.editor.changeCase("upper", "region");
+            },
+            "lowercaseRegion": () => {
                 this.editor.changeCase("lower", "region");
             },
             "uppercaseWord": () => {
@@ -84,6 +91,13 @@ export class Operation {
             },
             "capitaliseWord": () => {
                 this.editor.changeCase("capitalise", "position");
+            },
+
+            "enterMarkMode": () => {
+                this.editor.toggleMarkMode();
+            },
+            "exitMarkMode": () => {
+                this.editor.toggleMarkMode();
             },
         };
     }

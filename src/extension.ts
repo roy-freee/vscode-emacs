@@ -1,11 +1,10 @@
 import * as vscode from "vscode";
 import {Operation} from "./operation";
 
-let inMarkMode: boolean = false;
 export function activate(context: vscode.ExtensionContext): void {
     const op = new Operation();
     const commandList: string[] = [
-        "C-g",
+        "abortCommand",
         // Edit
         "C-k", "C-w", "M-w", "C-y", "C-x_C-o",
         "C-x_u", "C-/",
@@ -29,6 +28,9 @@ export function activate(context: vscode.ExtensionContext): void {
         "cuaPaste",
         "cuaCopy",
         "toggleCuaMode",
+
+        "enterMarkMode",
+        "exitMarkMode",
     ];
 
     const cursorMoves: string[] = [
@@ -46,7 +48,7 @@ export function activate(context: vscode.ExtensionContext): void {
         context.subscriptions.push(vscode.commands.registerCommand(
             "emacs." + element, () => {
                 vscode.commands.executeCommand(
-                    inMarkMode ?
+                    op.editor.markMode() ?
                     element + "Select" :
                     element,
                 );
@@ -61,38 +63,11 @@ export function activate(context: vscode.ExtensionContext): void {
         }
         op.onType(args.text);
     }));
-
-    initMarkMode(context);
 }
 
 // export function deactivate(): void {
 // }
 
-function initMarkMode(context: vscode.ExtensionContext): void {
-    context.subscriptions.push(vscode.commands.registerCommand(
-        "emacs.enterMarkMode", () => {
-            initSelection();
-            inMarkMode = true;
-            vscode.window.setStatusBarMessage("Mark Set", 1000);
-        }),
-    );
-
-    context.subscriptions.push(vscode.commands.registerCommand(
-        "emacs.exitMarkMode", () => {
-            vscode.commands.executeCommand("cancelSelection");
-            if (inMarkMode) {
-                inMarkMode = false;
-                vscode.window.setStatusBarMessage("Mark deactivated", 1000);
-            }
-        }),
-    );
-}
-
 function registerCommand(commandName: string, op: Operation): vscode.Disposable {
     return vscode.commands.registerCommand("emacs." + commandName, op.getCommand(commandName));
-}
-
-function initSelection(): void {
-    const currentPosition: vscode.Position = vscode.window.activeTextEditor.selection.active;
-    vscode.window.activeTextEditor.selection = new vscode.Selection(currentPosition, currentPosition);
 }

@@ -3,10 +3,12 @@
 This project is a fork of the popular [Emacs Keymap](https://marketplace.visualstudio.com/items?itemName=hiro-sun.vscode-emacs) by hiro-sun. That project is no longer active and my goal was to add s-expression movement and selection as well as window management keybindings. Feel free to request features on the github page for this extension.
 
 ## Operation
+
 Use `Shift+DEL` to cut to clipboard, the `Ctrl+C` is not overridden.
 Use `Shift+Insert` to paste from clipboard.
 
 ### Move command
+
 |Command | Status | Desc |
 |--------|--------|------|
 | `C-f` | OK | Move forward |
@@ -25,8 +27,8 @@ Use `Shift+Insert` to paste from clipboard.
 | `C-u C-x C-n` | - | Deactivate C-x C-n |
 | `M-g g` | OK | Jump to line (command palette) |
 
-
 ### Search Command
+
 |Command | Status | Desc |
 |--------|--------|------|
 | `C-s` | OK | Search forward |
@@ -35,6 +37,7 @@ Use `Shift+Insert` to paste from clipboard.
 | `C-l` | - | Use `ext install keyboard-scroll` to activate |
 
 ### Edit command
+
 |Command | Status | Desc |
 |--------|--------|------|
 | `C-d` | OK | Delete right (DEL) |
@@ -54,9 +57,10 @@ Use `Shift+Insert` to paste from clipboard.
 | `M-;` | △ | Toggle region comment in and out |
 
 ### Other Command
+
 |Command | Status | Desc |
 |--------|--------|------|
-| `C-g` | OK | Cancel |
+| `abortCommand` | OK | Cancel |
 | `C-space` | OK | Set mark |
 | `C-\` | - | IME control |
 | `C-quote` | OK | IntelliSense Suggestion |
@@ -67,6 +71,7 @@ Use `Shift+Insert` to paste from clipboard.
 | `C-M-SPC` | OK | Toggle SideBar visibility |
 
 ### File Command
+
 |Command | Status | Desc |
 |--------|--------|------|
 | `C-o` | OK | Open a file |
@@ -80,6 +85,7 @@ Use `Shift+Insert` to paste from clipboard.
 | `C-x C-b` | - | Create new file and open |
 
 ## Conflicts with default key bindings
+
 - `ctrl+d`: editor.action.addSelectionToNextFindMatch => **Use `ctrl+alt+n` instead**;
 - `ctrl+g`: workbench.action.gotoLine => **Use `alt+g g` instead**;
 - `ctrl+b`: workbench.action.toggleSidebarVisibility => **Use `ctrl+alt+space` instead**;
