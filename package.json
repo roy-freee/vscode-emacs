@@ -2,7 +2,7 @@
     "name": "vscode-emacs-improved",
     "displayName": "Emacs Keymap Improved",
     "description": "emacs like extension for vscode based on hiro-sun's key-map",
-    "version": "0.2.5",
+    "version": "0.2.6",
     "publisher": "rkwan94",
     "homepage": "https://github.com/rkwan94/vscode-emacs",
     "repository": {
@@ -30,7 +30,8 @@
     ],
     "main": "./out/src/extension",
     "contributes": {
-        "commands": [{
+        "commands": [
+            {
                 "command": "emacs.C-k",
                 "title": "Cut the text from cursor to line end and save it in emacs kill ring"
             },
@@ -51,7 +52,8 @@
                 "title": "Toggle cua mode"
             }
         ],
-        "keybindings": [{
+        "keybindings": [
+            {
                 "key": "right",
                 "command": "emacs.cursorRight",
                 "when": "editorTextFocus"
@@ -494,11 +496,11 @@
         "postinstall": "node ./node_modules/vscode/bin/install"
     },
     "devDependencies": {
-        "mocha": "^3.1.2",
-        "typescript": "^2.0.7",
-        "tslint": "^5.5.0",
-        "vscode": "^1.0.3",
-        "@types/mocha": "^2.2.32",
-        "@types/node": "^6.0.40"
+        "@types/mocha": "^2.2.48",
+        "@types/node": "^6.0.101",
+        "mocha": "^3.5.3",
+        "tslint": "^5.9.1",
+        "typescript": "^2.7.2",
+        "vscode": "^1.1.10"
     }
 }
