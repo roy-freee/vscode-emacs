@@ -35,9 +35,8 @@ export class Editor {
     private isKillRepeated: boolean;
     private keybindProgressMode: KeybindProgressMode;
     private registersStorage: { [key: string]: RegisterContent; };
-
     private statusBarItem: vscode.StatusBarItem;
-    private statusBarText: string;
+    private statusBarIcons: string[];
 
     constructor() {
         this.killRing = "";
@@ -51,8 +50,8 @@ export class Editor {
         });
 
         this.statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
-        this.statusBarText = `$(pencil) EMACS Minor Modes:`;
-        this.statusBarItem.text = this.statusBarText;
+        this.statusBarIcons = [];
+        this.statusBarItem.text = this.statusText();
         this.statusBarItem.show();
     }
 
@@ -69,11 +68,15 @@ export class Editor {
         if (this.isMarkMode) {
             vscode.commands.executeCommand("cancelSelection");
             this.isMarkMode = false;
+            this.statusBarIcons = this.statusBarIcons.filter(i => i !== "markdown");
         } else {
             const currentPosition: vscode.Position = vscode.window.activeTextEditor.selection.active;
             vscode.window.activeTextEditor.selection = new vscode.Selection(currentPosition, currentPosition);
             this.isMarkMode = true;
+            this.statusBarIcons.push("markdown");
         }
+
+        this.statusBarItem.text = this.statusText();
     }
 
     public cuaCut = () => {
@@ -112,8 +115,12 @@ export class Editor {
     public toggleCuaMode = () => {
         this.isCuaMode = !this.isCuaMode;
         if (this.isCuaMode) {
-            this.setStatusBarMessage("CUA Mode Active", 3000);
+            this.statusBarIcons = this.statusBarIcons.filter(i => i !== "clippy");
+        } else {
+            this.statusBarIcons.push("clippy");
         }
+
+        this.statusBarItem.text = this.statusText();
     }
 
     public changeCase = (casing: "upper" | "lower" | "capitalise", type: "position" | "region") => {
@@ -513,4 +520,6 @@ export class Editor {
             return doc.lineAt(range.start.line + 1).range;
         }
     }
+
+    private statusText = () => `EMACS Minor Modes: ${this.statusBarIcons.map(i => `$(${i})`).join(" ")}`;
 }
