@@ -64,7 +64,6 @@ export class Operation {
             // cua mode
             "toggleCuaMode": () => {
                 this.editor.toggleCuaMode();
-                this.editor.changeCase("lower", "region");
             },
             "cuaCut": () => {
                 this.editor.cuaCut();
