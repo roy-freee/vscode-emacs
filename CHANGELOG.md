@@ -37,7 +37,7 @@ All changes written by gizak, sammy44nts. Thanks
 
 ## 0.0.7 (2016-07-14)
 
-- bug fix for C-k. **Thanks trezm.**
+- bug fix for kill. **Thanks trezm.**
 - C-x C-f execute "workbench.action.files.openFile".
 
 Thanks sammy44nts.
@@ -46,7 +46,7 @@ Thanks sammy44nts.
 
 - C-p and C-n can be used in other panels such as Suggestion and Hint.
 - Fix bug C-x C-f won't open file explorer.
-- Add one more undo operation C-/
+- Add one more undo operation undo
 - Add redo operation C-x z
 - Fix incorrect column moving after using C-a and C-e
 
@@ -55,7 +55,7 @@ These commands and bug fixes were coding by kpping. Thanks. :)
 ## 0.0.5
 
 - Change the processing of C-u, C-h.
-- Change the processing of C-x C-f, C-x C-w, C-x C-s.
+- Change the processing of C-x C-f, C-x killRegion, C-x C-s.
 
 ## 0.0.4
 

@@ -43,7 +43,7 @@ Use `Shift+Insert` to paste from clipboard.
 | `C-d` | OK | Delete right (DEL) |
 | `C-h` | OK | Delete left (BACKSPACE) |
 | `M-d` | OK | Delete word |
-| `C-k` | OK | Kill to line end |
+| `kill` | OK | Kill to line end |
 | `C-w` | OK | Kill region |
 | `M-w` | OK | Copy region to kill ring |
 | `C-y` | OK | Yank |
@@ -52,7 +52,7 @@ Use `Shift+Insert` to paste from clipboard.
 | `C-i` | - | Horizontal Tab |
 | `C-x C-o` | OK | Delete blank lines around |
 | `C-x h` | OK | Select All |
-| `C-x u` (`C-/`)| OK | Undo |
+| `C-x u` (`undo`)| OK | Undo |
 | `C-;` | △ | Toggle line comment in and out |
 | `M-;` | △ | Toggle region comment in and out |
 

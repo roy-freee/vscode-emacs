@@ -1,4 +1,5 @@
 import * as vscode from "vscode";
+import { KillRing } from "./killring";
 import {
     RectangleContent,
     RegisterContent,
@@ -31,23 +32,18 @@ export class Editor {
 
     private isCuaMode: boolean;
     private isMarkMode: boolean;
-    private killRing: string;
-    private isKillRepeated: boolean;
+    private killRing: KillRing;
     private keybindProgressMode: KeybindProgressMode;
     private registersStorage: { [key: string]: RegisterContent; };
     private statusBarItem: vscode.StatusBarItem;
     private statusBarIcons: string[];
 
     constructor() {
-        this.killRing = "";
-        this.isKillRepeated = false;
+        this.killRing = new KillRing();
         this.isCuaMode = false;
         this.isMarkMode = false;
         this.keybindProgressMode = KeybindProgressMode.None;
         this.registersStorage = {};
-        vscode.window.onDidChangeTextEditorSelection(() => {
-            this.isKillRepeated = false;
-        });
 
         this.statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
         this.statusBarIcons = [];
@@ -254,7 +250,6 @@ export class Editor {
      * Behave like Emacs kill command
      */
     public kill(): void {
-        const saveIsKillRepeated = this.isKillRepeated;
         const promises = [
             vscode.commands.executeCommand("emacs.exitMarkMode"),
             vscode.commands.executeCommand("cursorEndSelect"),
@@ -265,9 +260,8 @@ export class Editor {
             const range = new vscode.Range(selection.start, selection.end);
 
             this.setSelection(range.start, range.start);
-            this.isKillRepeated = saveIsKillRepeated;
             if (range.isEmpty) {
-                this.killEndOfLine(saveIsKillRepeated, range);
+                this.killEndOfLine();
             } else {
                 this.killText(range);
             }
@@ -275,7 +269,6 @@ export class Editor {
     }
 
     public copy(range: vscode.Range = null): boolean {
-        this.killRing = "";
         if (range === null) {
             range = this.getSelectionRange();
             if (range === null) {
@@ -283,7 +276,8 @@ export class Editor {
                 return false;
             }
         }
-        this.killRing = vscode.window.activeTextEditor.document.getText(range);
+
+        this.killRing.save(vscode.window.activeTextEditor.document.getText(range));
         vscode.commands.executeCommand("emacs.exitMarkMode");
         return this.killRing !== undefined;
     }
@@ -299,13 +293,13 @@ export class Editor {
     }
 
     public yank(): boolean {
-        if (this.killRing.length === 0) {
+        if (this.killRing.isEmpty()) {
             return false;
         }
+
         vscode.window.activeTextEditor.edit((editBuilder) => {
-            editBuilder.insert(this.getSelection().active, this.killRing);
+            editBuilder.insert(this.getSelection().active, this.killRing.top());
         });
-        this.isKillRepeated = false;
         return true;
     }
 
@@ -475,7 +469,7 @@ export class Editor {
         return !currRegion.start.isEqual(currRegion.end);
     }
 
-    private killEndOfLine(saveIsKillRepeated: boolean, range: vscode.Range): void {
+    private killEndOfLine(): void {
         const doc = vscode.window.activeTextEditor.document;
         const eof = doc.lineAt(doc.lineCount - 1).range.end;
 
@@ -486,7 +480,7 @@ export class Editor {
         } else {
             this.setStatusBarMessage("End of buffer");
         }
-        vscode.commands.executeCommand("deleteRight").then(() => {
+        vscode.commands.executeCommand("deleteAllRight").then(() => {
             this.isKillRepeated = saveIsKillRepeated;
         });
     }
@@ -498,9 +492,8 @@ export class Editor {
             vscode.commands.executeCommand("emacs.exitMarkMode"),
         ];
 
-        this.isKillRepeated ? this.killRing += text : this.killRing = text;
         Promise.all(promises).then(() => {
-            this.isKillRepeated = true;
+            this.killRing.save(text);
         });
     }
 

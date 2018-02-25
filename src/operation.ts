@@ -7,7 +7,7 @@ export class Operation {
     constructor() {
         this.editor = new Editor();
         this.commandList = {
-            "C-/": () => {
+            "undo": () => {
                 this.editor.undo();
                 this.editor.setStatusBarMessage("Undo!");
             },
@@ -26,10 +26,10 @@ export class Operation {
                     this.editor.toggleMarkMode();
                 }
             },
-            "C-k": () => {
+            "kill": () => {
                 this.editor.kill();
             },
-            "C-w": () => {
+            "killRegion": () => {
                 if (this.editor.cut()) {
                     this.editor.setStatusBarMessage("Cut");
                 } else {
@@ -46,14 +46,14 @@ export class Operation {
                 this.editor.undo();
                 this.editor.setStatusBarMessage("Undo!");
             },
-            "C-y": () => {
+            "yank": () => {
                 if (this.editor.yank()) {
                     this.editor.setStatusBarMessage("Yank");
                 } else {
                     this.editor.setStatusBarMessage("Kill ring is empty");
                 }
             },
-            "M-w": () => {
+            "killRingSave": () => {
                 if (this.editor.copy()) {
                     this.editor.setStatusBarMessage("Copy");
                 } else {

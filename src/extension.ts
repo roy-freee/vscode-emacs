@@ -6,8 +6,8 @@ export function activate(context: vscode.ExtensionContext): void {
     const commandList: string[] = [
         "abortCommand",
         // Edit
-        "C-k", "C-w", "M-w", "C-y", "C-x_C-o",
-        "C-x_u", "C-/",
+        "kill", "killRegion", "killRingSave", "yank", "C-x_C-o",
+        "C-x_u", "undo",
 
         // R-Mode
         "C-x_r",

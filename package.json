@@ -32,19 +32,19 @@
     "contributes": {
         "commands": [
             {
-                "command": "emacs.C-k",
+                "command": "emacs.kill",
                 "title": "Cut the text from cursor to line end and save it in emacs kill ring"
             },
             {
-                "command": "emacs.M-w",
+                "command": "emacs.killRingSave",
                 "title": "Copy selected text to emacs kill ring"
             },
             {
-                "command": "emacs.C-w",
+                "command": "emacs.killRegion",
                 "title": "Cut selected text to emacs kill ring"
             },
             {
-                "command": "emacs.C-y",
+                "command": "emacs.yank",
                 "title": "Yank (Paste) emacs kill ring"
             },
             {
@@ -222,22 +222,22 @@
             },
             {
                 "key": "ctrl+k",
-                "command": "emacs.C-k",
+                "command": "emacs.kill",
                 "when": "editorTextFocus"
             },
             {
                 "key": "ctrl+w",
-                "command": "emacs.C-w",
+                "command": "emacs.killRegion",
                 "when": "editorTextFocus"
             },
             {
                 "key": "alt+w",
-                "command": "emacs.M-w",
+                "command": "emacs.killRingSave",
                 "when": "editorTextFocus"
             },
             {
                 "key": "ctrl+y",
-                "command": "emacs.C-y",
+                "command": "emacs.yank",
                 "when": "editorTextFocus"
             },
             {
@@ -262,7 +262,7 @@
             },
             {
                 "key": "ctrl+/",
-                "command": "emacs.C-/",
+                "command": "emacs.undo",
                 "when": "editorTextFocus"
             },
             {
