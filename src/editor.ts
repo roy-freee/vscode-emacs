@@ -470,18 +470,19 @@ export class Editor {
     }
 
     private killEndOfLine(): void {
-        const doc = vscode.window.activeTextEditor.document;
-        const eof = doc.lineAt(doc.lineCount - 1).range.end;
+        let text = '';
 
-        if (doc.lineCount && !range.end.isEqual(eof) &&
-            doc.lineAt(range.start.line).rangeIncludingLineBreak) {
-            this.isKillRepeated ? this.killRing += "\n" : this.killRing = "\n";
-            saveIsKillRepeated = true;
-        } else {
-            this.setStatusBarMessage("End of buffer");
-        }
-        vscode.commands.executeCommand("deleteAllRight").then(() => {
-            this.isKillRepeated = saveIsKillRepeated;
+        const currentCursorPosition = vscode.window.activeTextEditor.selection.active;
+        vscode.commands.executeCommand("emacs.cursorEnd")
+        .then(() => {
+            const newCursorPos = vscode.window.activeTextEditor.selection.active;
+            const rangeTillEnd = new vscode.Range(currentCursorPosition, newCursorPos);
+            return vscode.window.activeTextEditor.document.getText(rangeTillEnd);
+        }).then((text: string) => {
+            vscode.window.activeTextEditor.selection.active = currentCursorPosition;
+            vscode.commands.executeCommand("deleteAllRight").then(() => {
+                this.killRing.save(text);
+            });
         });
     }
 
