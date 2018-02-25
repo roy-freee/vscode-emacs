@@ -53,6 +53,9 @@ export class Operation {
                     this.editor.setStatusBarMessage("Kill ring is empty");
                 }
             },
+            "yankPop": () => {
+                this.editor.yankPop();
+            },
             "killRingSave": () => {
                 if (this.editor.copy()) {
                     this.editor.setStatusBarMessage("Copy");

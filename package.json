@@ -241,6 +241,11 @@
                 "when": "editorTextFocus"
             },
             {
+                "key": "alt+y",
+                "command": "emacs.yankPop",
+                "when": "editorTextFocus"
+            },
+            {
                 "key": "ctrl+j",
                 "command": "editor.action.insertLineAfter",
                 "when": "editorTextFocus"

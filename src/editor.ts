@@ -270,7 +270,7 @@ export class Editor {
 
     public copy(range: vscode.Range = null): boolean {
         if (range === null) {
-            range = this.getSelectionRange();
+            range = vscode.window.activeTextEditor.selection;
             if (range === null) {
                 vscode.commands.executeCommand("emacs.exitMarkMode");
                 return false;
@@ -279,7 +279,7 @@ export class Editor {
 
         this.killRing.save(vscode.window.activeTextEditor.document.getText(range));
         vscode.commands.executeCommand("emacs.exitMarkMode");
-        return this.killRing !== undefined;
+        return true;
     }
 
     public cut(): boolean {
@@ -298,7 +298,29 @@ export class Editor {
         }
 
         vscode.window.activeTextEditor.edit((editBuilder) => {
-            editBuilder.insert(this.getSelection().active, this.killRing.top());
+            const topText = this.killRing.top();
+            const currPos = vscode.window.activeTextEditor.selection.start;
+            const textRange = new vscode.Range(currPos, currPos.translate({ characterDelta: topText.length }));
+
+            editBuilder.insert(this.getSelection().active, topText);
+            this.killRing.setLastInsertedRange(textRange);
+        });
+        return true;
+    }
+
+    public yankPop() {
+        if (this.killRing.isEmpty()) {
+            return false;
+        }
+
+        vscode.window.activeTextEditor.edit((editBuilder) => {
+            this.killRing.backward();
+            const prevText = this.killRing.top();
+            const oldInsertionPoint = this.killRing.getLastInsertionPoint();
+            const newRange = new vscode.Range(oldInsertionPoint, oldInsertionPoint.translate({ characterDelta: prevText.length }));
+
+            editBuilder.replace(this.killRing.getLastRange(), prevText);
+            this.killRing.setLastInsertedRange(newRange);
         });
         return true;
     }

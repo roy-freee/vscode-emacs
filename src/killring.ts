@@ -1,10 +1,14 @@
+import { Range } from "vscode";
 
 export class KillRing {
   private readonly MAX_LENGTH = 60;
   private items: string[];
   private pointer: number;
 
+  private oldRange: Range | null;
+
   constructor() {
+    this.oldRange = null;
     this.pointer = 0;
     this.items = new Array<string>(this.MAX_LENGTH);
   }
@@ -18,12 +22,31 @@ export class KillRing {
     return this.items[(this.pointer - 1) % this.MAX_LENGTH];
   }
 
-  public next = () => {
+  public forward = () => {
     if (this.items[(this.pointer + 1) % this.MAX_LENGTH] === undefined) {
       this.pointer = 0;
     } else {
       this.pointer = (this.pointer + 1) % this.MAX_LENGTH;
     }
+  }
+
+  public backward = () => {
+    if (this.pointer === 1) {
+      const firstEmpty = this.items.findIndex(i => i === undefined);
+      this.pointer = firstEmpty !== -1 ? firstEmpty : this.MAX_LENGTH - 1;
+    } else {
+      this.pointer = (this.pointer - 1) % this.MAX_LENGTH;
+    }
+  }
+
+  public setLastInsertedRange = (r: Range) => {
+    this.oldRange = r;
+  }
+
+  public getLastRange = () => this.oldRange;
+
+  public getLastInsertionPoint = () => {
+    return this.oldRange.start;
   }
 
   public isEmpty = (): boolean => {
