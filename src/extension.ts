@@ -15,7 +15,7 @@ export function activate(context: vscode.ExtensionContext): void {
         "undo",
 
         // R-Mode
-        "C-x_r",
+        "listenForRegisterCmds",
 
         // S-expression movement
         "C-M-f",

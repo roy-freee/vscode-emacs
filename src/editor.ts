@@ -6,6 +6,7 @@ import {
     RegisterKind,
 } from "./registers";
 import * as sexp from "./sexp";
+import StatusIndicator, { Mode } from "./statusIndicator";
 
 enum KeybindProgressMode {
     None,   // No current keybind is currently in progress
@@ -17,106 +18,76 @@ enum KeybindProgressMode {
 }
 
 export class Editor {
-    public static delete(range: vscode.Range = null): Thenable<boolean> {
-        if (range === null) {
-            const start = new vscode.Position(0, 0);
-            const doc = vscode.window.activeTextEditor.document;
-            const end = doc.lineAt(doc.lineCount - 1).range.end;
 
-            range = new vscode.Range(start, end);
-        }
-        return vscode.window.activeTextEditor.edit((editBuilder) => {
-            editBuilder.delete(range);
-        });
-    }
-
-    private isCuaMode: boolean;
-    private isMarkMode: boolean;
     private killRing: KillRing;
     private keybindProgressMode: KeybindProgressMode;
     private registersStorage: { [key: string]: RegisterContent; };
-    private statusBarItem: vscode.StatusBarItem;
-    private statusBarIcons: string[];
+    private status: StatusIndicator;
 
     constructor() {
+        this.status = new StatusIndicator();
         this.killRing = new KillRing();
-        this.isCuaMode = false;
-        this.isMarkMode = false;
         this.keybindProgressMode = KeybindProgressMode.None;
         this.registersStorage = {};
-
-        this.statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
-        this.statusBarIcons = [];
-        this.statusBarItem.text = this.statusText();
-        this.statusBarItem.show();
     }
 
-    public markMode = () => this.isMarkMode;
-
-    public setStatusBarMessage = (text: string, duration: number = 1000): vscode.Disposable => {
-        return vscode.window.setStatusBarMessage(text, duration);
+    public abort = () => {
+        this.status.setStatusBarMessage("Quit");
+        if (this.markMode()) {
+            this.toggleMarkMode();
+        }
     }
+
+    public markMode = () => this.status.isModeActive(Mode.Mark);
 
     public setStatusBarPermanentMessage = (text: string): vscode.Disposable => {
         return vscode.window.setStatusBarMessage(text);
     }
     public toggleMarkMode = () => {
-        if (this.isMarkMode) {
+        if (this.status.isModeActive(Mode.Mark)) {
             vscode.commands.executeCommand("cancelSelection");
-            this.isMarkMode = false;
-            this.statusBarIcons = this.statusBarIcons.filter(i => i !== "markdown");
+            this.status.toggleMode(Mode.Mark);
         } else {
             const currentPosition: vscode.Position = vscode.window.activeTextEditor.selection.active;
             vscode.window.activeTextEditor.selection = new vscode.Selection(currentPosition, currentPosition);
-            this.isMarkMode = true;
-            this.statusBarIcons.push("markdown");
+            this.status.toggleMode(Mode.Mark);
         }
-
-        this.statusBarItem.text = this.statusText();
     }
 
     public cuaCut = () => {
-        if (this.isCuaMode) {
+        if (this.status.isModeActive(Mode.Cua)) {
             if (this.isRegion()) {
                 this.cut();
-                this.setStatusBarMessage("Region cut", 2000);
+                this.status.setStatusBarMessage("Region cut", 2000);
             } else {
-                this.setStatusBarMessage("Not in region", 2000);
+                this.status.setStatusBarMessage("Not in region", 2000);
             }
         }
     }
-
     public cuaCopy = () => {
-        if (this.isCuaMode) {
+        if (this.status.isModeActive(Mode.Cua)) {
             if (this.isRegion()) {
                 this.copy();
-                this.setStatusBarMessage("Region copied", 2000);
+                this.status.setStatusBarMessage("Region copied", 2000);
             } else {
-                this.setStatusBarMessage("Not in region", 2000);
+                this.status.setStatusBarMessage("Not in region", 2000);
             }
         }
     }
     public cuaPaste = () => {
-        if (this.isCuaMode) {
+        if (this.status.isModeActive(Mode.Cua)) {
             if (this.isRegion()) {
                 this.yank();
-                this.setStatusBarMessage("Region pasted", 2000);
+                this.status.setStatusBarMessage("Region pasted", 2000);
             } else {
-                this.setStatusBarMessage("Not in region", 2000);
+                this.status.setStatusBarMessage("Not in region", 2000);
             }
         } else {
             vscode.commands.executeCommand("emacs.cursorPageDown");
         }
     }
     public toggleCuaMode = () => {
-        this.isCuaMode = !this.isCuaMode;
-        if (this.isCuaMode) {
-            this.statusBarIcons = this.statusBarIcons.filter(i => i !== "clippy");
-        } else {
-            this.statusBarIcons.push("clippy");
-        }
-
-        this.statusBarItem.text = this.statusText();
+        this.status.toggleMode(Mode.Cua);
     }
 
     public changeCase = (casing: "upper" | "lower" | "capitalise", type: "position" | "region") => {
@@ -136,7 +107,7 @@ export class Editor {
         } else if (type === "region" && region.start.character !== region.end.character) {
             currentSelection = this.getSelectedText(region, vscode.window.activeTextEditor.document);
         } else {
-            this.setStatusBarMessage("No region selected. Command aborted.");
+            this.status.setStatusBarMessage("No region selected. Command aborted.");
             return;
         }
 
@@ -288,7 +259,7 @@ export class Editor {
         if (!this.copy(range)) {
             return false;
         }
-        Editor.delete(range);
+        this.delete(range);
         return true;
     }
 
@@ -317,7 +288,7 @@ export class Editor {
         const lastInsertionRange = this.killRing.getLastRange();
 
         if (lastInsertionRange.end !== currentPosition) {
-            this.setStatusBarMessage("Previous command was not a yank", 5000);
+            this.status.setStatusBarMessage("Previous command was not a yank", 5000);
             return false;
         }
 
@@ -368,8 +339,8 @@ export class Editor {
     }
 
     public setRMode(): void {
-        this.setStatusBarPermanentMessage("C-x r");
         this.keybindProgressMode = KeybindProgressMode.RMode;
+        this.status.toggleMode(Mode.Register);
         return;
     }
 
@@ -380,37 +351,37 @@ export class Editor {
                 switch (text) {
                     // Rectangles
                     case "r":
-                        this.setStatusBarMessage("'C-x r r' (Copy rectangle to register) is not supported.");
+                        this.status.setStatusBarMessage("'C-x r r' (Copy rectangle to register) is not supported.");
                         this.keybindProgressMode = KeybindProgressMode.None;
                         fHandled = true;
                         break;
 
                     case "k":
-                        this.setStatusBarMessage("'C-x r k' (Kill rectangle) is not supported.");
+                        this.status.setStatusBarMessage("'C-x r k' (Kill rectangle) is not supported.");
                         this.keybindProgressMode = KeybindProgressMode.None;
                         fHandled = true;
                         break;
 
                     case "y":
-                        this.setStatusBarMessage("'C-x r y' (Yank rectangle) is not supported.");
+                        this.status.setStatusBarMessage("'C-x r y' (Yank rectangle) is not supported.");
                         this.keybindProgressMode = KeybindProgressMode.None;
                         fHandled = true;
                         break;
 
                     case "o":
-                        this.setStatusBarMessage("'C-x r o' (Open rectangle) is not supported.");
+                        this.status.setStatusBarMessage("'C-x r o' (Open rectangle) is not supported.");
                         this.keybindProgressMode = KeybindProgressMode.None;
                         fHandled = true;
                         break;
 
                     case "c":
-                        this.setStatusBarMessage("'C-x r c' (Blank out rectangle) is not supported.");
+                        this.status.setStatusBarMessage("'C-x r c' (Blank out rectangle) is not supported.");
                         this.keybindProgressMode = KeybindProgressMode.None;
                         fHandled = true;
                         break;
 
                     case "t":
-                        this.setStatusBarMessage("'C-x r t' (prefix each line with a string) is not supported.");
+                        this.status.setStatusBarMessage("'C-x r t' (prefix each line with a string) is not supported.");
                         this.keybindProgressMode = KeybindProgressMode.None;
                         fHandled = true;
                         break;
@@ -464,7 +435,6 @@ export class Editor {
         }
         return;
     }
-
     public SaveTextToRegister(registerName: string): void {
         if (null === registerName) {
             return;
@@ -483,7 +453,7 @@ export class Editor {
         vscode.commands.executeCommand("emacs.exitMarkMode"); // emulate Emacs
         const obj: RegisterContent = this.registersStorage[registerName];
         if (null === obj) {
-            this.setStatusBarMessage("Register does not contain text.");
+            this.status.setStatusBarMessage("Register does not contain text.");
             return;
         }
         if (RegisterKind.KText === obj.getRegisterKind()) {
@@ -520,12 +490,25 @@ export class Editor {
     private killText(range: vscode.Range): void {
         const text = vscode.window.activeTextEditor.document.getText(range);
         const promises = [
-            Editor.delete(range),
+            this.delete(range),
             vscode.commands.executeCommand("emacs.exitMarkMode"),
         ];
 
         Promise.all(promises).then(() => {
             this.killRing.save(text);
+        });
+    }
+
+    private delete(range: vscode.Range = null): Thenable<boolean> {
+        if (range === null) {
+            const start = new vscode.Position(0, 0);
+            const doc = vscode.window.activeTextEditor.document;
+            const end = doc.lineAt(doc.lineCount - 1).range.end;
+
+            range = new vscode.Range(start, end);
+        }
+        return vscode.window.activeTextEditor.edit((editBuilder) => {
+            editBuilder.delete(range);
         });
     }
 
@@ -545,6 +528,4 @@ export class Editor {
             return doc.lineAt(range.start.line + 1).range;
         }
     }
-
-    private statusText = () => `EMACS Minor Modes: ${this.statusBarIcons.map(i => `$(${i})`).join(" ")}`;
 }

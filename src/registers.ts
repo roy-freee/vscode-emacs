@@ -4,11 +4,11 @@ export enum RegisterKind {
     KText = 1,
     KPoint = 2,
     KRectangle = 3,
-};
+}
 
 export class RectangleContent { // TODO: move it to rectangle.ts eventually.
     // TBD
-};
+}
 
 export class RegisterContent {
     public static fromRegion(registerContent: string) {
@@ -40,4 +40,4 @@ export class RegisterContent {
     public getRegisterContent(): string | vscode.Position | RectangleContent {
         return this.content;
     }
-};
+}

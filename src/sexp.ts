@@ -22,7 +22,7 @@ export function turnToSexp(text: string): string[][] {
   let word = "";
   let inStr = false;
 
-  for (const char of text){
+  for (const char of text) {
     if (start.test(char) && !inStr) {
       sexp.push([]);
     } else if ((end.test(char) || isWhitespace.test(char)) && !inStr) {

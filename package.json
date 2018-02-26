@@ -466,7 +466,7 @@
             },
             {
                 "key": "ctrl+x r",
-                "command": "emacs.C-x_r",
+                "command": "emacs.listenForRegisterCmds",
                 "when": "editorTextFocus"
             },
             {

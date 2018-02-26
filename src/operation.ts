@@ -9,7 +9,6 @@ export class Operation {
         this.commandList = {
             "undo": () => {
                 this.editor.undo();
-                this.editor.setStatusBarMessage("Undo!");
             },
             "C-M-Space": () => {
                 this.editor.goToNextSexp(true);
@@ -21,43 +20,28 @@ export class Operation {
                 this.editor.goToNextSexp();
             },
             "abortCommand": () => {
-                this.editor.setStatusBarMessage("Quit");
-                if (this.editor.markMode()) {
-                    this.editor.toggleMarkMode();
-                }
+                this.editor.abort();
             },
             "kill": () => {
                 this.editor.kill();
             },
             "killRegion": () => {
-                if (this.editor.cut()) {
-                    this.editor.setStatusBarMessage("Cut");
-                } else {
-                    this.editor.setStatusBarMessage("Cut Error!");
-                }
+                this.editor.cut();
             },
             "C-x_C-o": () => {
                 this.editor.deleteBlankLines();
             },
-            "C-x_r": () => {
+            "listenForRegisterCmds": () => {
                 this.editor.setRMode();
             },
             "yank": () => {
-                if (this.editor.yank()) {
-                    this.editor.setStatusBarMessage("Yank");
-                } else {
-                    this.editor.setStatusBarMessage("Kill ring is empty");
-                }
+                this.editor.yank();
             },
             "yankPop": () => {
                 this.editor.yankPop();
             },
             "killRingSave": () => {
-                if (this.editor.copy()) {
-                    this.editor.setStatusBarMessage("Copy");
-                } else {
-                    this.editor.setStatusBarMessage("Copy Error!");
-                }
+                this.editor.copy();
             },
 
             // cua mode
