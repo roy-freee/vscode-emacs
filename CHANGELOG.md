@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.7
+
+- Added Kill-ring support
+
 ## 0.2.6
 
 - Added CUA mode

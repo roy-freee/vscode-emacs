@@ -42,10 +42,6 @@ export class Operation {
             "C-x_r": () => {
                 this.editor.setRMode();
             },
-            "C-x_u": () => {
-                this.editor.undo();
-                this.editor.setStatusBarMessage("Undo!");
-            },
             "yank": () => {
                 if (this.editor.yank()) {
                     this.editor.setStatusBarMessage("Yank");

@@ -12,7 +12,7 @@ export function activate(context: vscode.ExtensionContext): void {
         "yank",
         "yankPop",
         "C-x_C-o",
-        "C-x_u", "undo",
+        "undo",
 
         // R-Mode
         "C-x_r",

@@ -313,11 +313,22 @@ export class Editor {
             return false;
         }
 
+        const currentPosition = vscode.window.activeTextEditor.selection.active;
+        const lastInsertionRange = this.killRing.getLastRange();
+
+        if (lastInsertionRange.end !== currentPosition) {
+            this.setStatusBarMessage("Previous command was not a yank", 5000);
+            return false;
+        }
+
         vscode.window.activeTextEditor.edit((editBuilder) => {
             this.killRing.backward();
             const prevText = this.killRing.top();
             const oldInsertionPoint = this.killRing.getLastInsertionPoint();
-            const newRange = new vscode.Range(oldInsertionPoint, oldInsertionPoint.translate({ characterDelta: prevText.length }));
+            const newRange = new vscode.Range(
+                oldInsertionPoint,
+                oldInsertionPoint.translate({ characterDelta: prevText.length }),
+            );
 
             editBuilder.replace(this.killRing.getLastRange(), prevText);
             this.killRing.setLastInsertedRange(newRange);
@@ -492,8 +503,6 @@ export class Editor {
     }
 
     private killEndOfLine(): void {
-        let text = '';
-
         const currentCursorPosition = vscode.window.activeTextEditor.selection.active;
         vscode.commands.executeCommand("emacs.cursorEnd")
         .then(() => {

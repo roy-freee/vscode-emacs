@@ -262,7 +262,7 @@
             },
             {
                 "key": "ctrl+x u",
-                "command": "emacs.C-x_u",
+                "command": "emacs.undo",
                 "when": "editorTextFocus"
             },
             {
