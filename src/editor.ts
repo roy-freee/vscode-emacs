@@ -287,8 +287,8 @@ export class Editor {
         const currentPosition = vscode.window.activeTextEditor.selection.active;
         const lastInsertionRange = this.killRing.getLastRange();
 
-        if (lastInsertionRange.end !== currentPosition) {
-            this.status.setStatusBarMessage("Previous command was not a yank", 5000);
+        if (!lastInsertionRange.end.isEqual(currentPosition)) {
+            this.status.setStatusBarMessage("Previous command was not a yank.", 3000);
             return false;
         }
 
