@@ -36,6 +36,8 @@ export function activate(context: vscode.ExtensionContext): void {
 
         "enterMarkMode",
         "exitMarkMode",
+        "enterRectangleMarkMode",
+        "exitRectangleMarkMode",
     ];
 
     const cursorMoves: string[] = [
@@ -52,11 +54,20 @@ export function activate(context: vscode.ExtensionContext): void {
     cursorMoves.forEach(element => {
         context.subscriptions.push(vscode.commands.registerCommand(
             "emacs." + element, () => {
-                vscode.commands.executeCommand(
-                    op.editor.markMode() ?
-                    element + "Select" :
-                    element
-                );
+                let cmd = element;
+                if (op.editor.markMode()) {
+                    cmd += "Select";
+                } else if (op.editor.rectangleMarkMode()) {
+                    if (element === "cursorUp") {
+                        cmd = "editor.action.insertCursorAbove";
+                    } else if (element === "cursorDown") {
+                        cmd = "editor.action.insertCursorBelow";
+                    } else {
+                        cmd += "Select";
+                    }
+                }
+
+                vscode.commands.executeCommand(cmd);
             })
         );
     });

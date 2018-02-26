@@ -9,11 +9,13 @@ export class Editor {
     private killRing: KillRing;
     private register: Register;
     private status: StatusIndicator;
+    private lastRectangularKill: string;
 
     constructor() {
         this.status = new StatusIndicator();
         this.killRing = new KillRing();
         this.register = new Register();
+        this.lastRectangularKill = null;
     }
 
     public abort = () => {
@@ -23,14 +25,27 @@ export class Editor {
 
     public markMode = () => this.status.isModeActive(Mode.Mark);
 
+    public rectangleMarkMode = () => this.status.isModeActive(Mode.RectangleMark);
+
     public toggleMarkMode = () => {
         if (this.status.isModeActive(Mode.Mark)) {
             vscode.commands.executeCommand("cancelSelection");
-            this.status.toggleMode(Mode.Mark);
+            this.status.deactivate(Mode.Mark);
         } else {
             const currentPosition: vscode.Position = vscode.window.activeTextEditor.selection.active;
             vscode.window.activeTextEditor.selection = new vscode.Selection(currentPosition, currentPosition);
-            this.status.toggleMode(Mode.Mark);
+            this.status.activate(Mode.Mark);
+        }
+    }
+
+    public toggleRectangleMarkMode = () => {
+        if (this.status.isModeActive(Mode.RectangleMark)) {
+            vscode.commands.executeCommand("cancelSelection");
+            this.status.deactivate(Mode.RectangleMark);
+        } else {
+            const currentPosition: vscode.Position = vscode.window.activeTextEditor.selection.active;
+            vscode.window.activeTextEditor.selection = new vscode.Selection(currentPosition, currentPosition);
+            this.status.activate(Mode.RectangleMark);
         }
     }
 
@@ -319,49 +334,62 @@ export class Editor {
     }
 
     public setRMode(): void {
-        this.status.activate(Mode.RegisterWait);
+        this.status.activate(Mode.Register);
         return;
+    }
+
+    public copyRectangle(): void {
+        const selections = vscode.window.activeTextEditor.selections;
+        let str = "";
+
+        for (const s of selections) {
+            const lineText = vscode.window.activeTextEditor.document.getText(s);
+            str += `${lineText}\n`;
+        }
+
+        this.lastRectangularKill = str;
     }
 
     public onType(text: string): void {
         let fHandled = false;
         switch (this.status.keybindingProgressMode()) {
-            case Mode.RegisterWait:
+            case Mode.Register:
                 switch (text) {
                     // Rectangles
                     case "r":
-                        this.status.setStatusBarMessage("'C-x r r' (Copy rectangle to register) is not supported.");
-                        this.status.toggleMode(Mode.RegisterWait);
+                        this.copyRectangle();
+                        this.status.deactivate(Mode.RectangleMark);
+                        this.status.deactivate(Mode.Register);
                         fHandled = true;
                         break;
 
                     case "k":
                         this.status.setStatusBarMessage("'C-x r k' (Kill rectangle) is not supported.");
-                        this.status.toggleMode(Mode.RegisterWait);
+                        this.status.deactivate(Mode.Register);
                         fHandled = true;
                         break;
 
                     case "y":
                         this.status.setStatusBarMessage("'C-x r y' (Yank rectangle) is not supported.");
-                        this.status.toggleMode(Mode.RegisterWait);
+                        this.status.deactivate(Mode.Register);
                         fHandled = true;
                         break;
 
                     case "o":
                         this.status.setStatusBarMessage("'C-x r o' (Open rectangle) is not supported.");
-                        this.status.toggleMode(Mode.RegisterWait);
+                        this.status.deactivate(Mode.Register);
                         fHandled = true;
                         break;
 
                     case "c":
                         this.status.setStatusBarMessage("'C-x r c' (Blank out rectangle) is not supported.");
-                        this.status.toggleMode(Mode.RegisterWait);
+                        this.status.deactivate(Mode.Register);
                         fHandled = true;
                         break;
 
                     case "t":
                         this.status.setStatusBarMessage("'C-x r t' (prefix each line with a string) is not supported.");
-                        this.status.toggleMode(Mode.RegisterWait);
+                        this.status.toggleMode(Mode.Register);
                         fHandled = true;
                         break;
 
@@ -396,7 +424,16 @@ export class Editor {
                 this.status.deactivateTempModes();
                 fHandled = true;
                 break;
+            case Mode.RectangleMark:
+                switch (text) {
+                    case "i":
+                        this.status.setKeybindingProgress(Mode.RegisterInsert);
+                        fHandled = true;
+                        break;
 
+                    default:
+                        break;
+                }
             case Mode.NoKeyBinding:
             default:
                 this.status.deactivateTempModes();

@@ -7,16 +7,18 @@ export enum Mode {
   // Keybinding Progress Modes
   // - VSCode only supports 2-key chords
   // - These states are used to listen for additional keys
-  RegisterWait,
+  Register,
   RegisterSave,
   RegisterInsert,
+  RectangleMark,
   NoKeyBinding,
 }
 
 const IconMapper = {
   [Mode.Mark]: "markdown",
   [Mode.Cua]: "clippy",
-  [Mode.RegisterWait]: "server",
+  [Mode.Register]: "server",
+  [Mode.RectangleMark]: "note",
 };
 export default class StatusIndicator {
   private statusBarItem: StatusBarItem;
@@ -65,19 +67,20 @@ export default class StatusIndicator {
     return this.activeModes.some(i => i === mode);
   }
   public setKeybindingProgress(mode: Mode.RegisterSave | Mode.RegisterInsert) {
-    if (!this.isModeActive(Mode.RegisterWait)) {
+    if (!this.isModeActive(Mode.Register)) {
       this.setStatusBarMessage("Operation failed: not in Register Mode", 2000);
     } else {
       this.activeModes.push(mode);
-      this.activeModes = this.activeModes.filter(i => i !== Mode.RegisterWait);
-      this.statusBarIcons = this.statusBarIcons.filter(i => i !== IconMapper[Mode.RegisterWait]);
+      this.activeModes = this.activeModes.filter(i => i !== Mode.Register);
+      this.statusBarIcons = this.statusBarIcons.filter(i => i !== IconMapper[Mode.Register]);
     }
   }
   public keybindingProgressMode(): Mode {
     const value = this.activeModes.find(i =>
-      i === Mode.RegisterWait ||
+      i === Mode.Register ||
       i === Mode.RegisterSave ||
-      i === Mode.RegisterInsert
+      i === Mode.RegisterInsert ||
+      i === Mode.RectangleMark
     );
     return value ? value : Mode.NoKeyBinding;
   }

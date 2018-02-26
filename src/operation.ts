@@ -81,6 +81,12 @@ export class Operation {
             "exitMarkMode": () => {
                 this.editor.toggleMarkMode();
             },
+            "enterRectangleMarkMode": () => {
+                this.editor.toggleRectangleMarkMode();
+            },
+            "exitRectangleMarkMode": () => {
+                this.editor.toggleRectangleMarkMode();
+            },
         };
     }
 

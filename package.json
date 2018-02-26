@@ -305,6 +305,11 @@
             },
             {
                 "key": "ctrl+g",
+                "command": "emacs.exitRectangleMarkMode",
+                "when": "editorTextFocus && editorHasMultipleSelections"
+            },
+            {
+                "key": "ctrl+g",
                 "command": "closeReferenceSearchEditor",
                 "when": "inReferenceSearchEditor && !config.editor.stablePeek"
             },
@@ -367,6 +372,11 @@
                 "key": "ctrl+g",
                 "command": "workbench.action.closeQuickOpen",
                 "when": "inQuickOpen"
+            },
+            {
+                "key": "ctrl+x space",
+                "command": "emacs.enterRectangleMarkMode",
+                "when": "editorTextFocus"
             },
             {
                 "key": "ctrl+space",
