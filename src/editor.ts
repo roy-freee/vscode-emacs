@@ -1,27 +1,18 @@
 import * as vscode from "vscode";
-import { KillRing } from "./killring";
-import Register, { RectangleContent, RegisterContent, RegisterKind } from "./registers";
+import KillRing from "./killring";
+import Register from "./registers";
 import * as sexp from "./sexp";
 import StatusIndicator, { Mode } from "./statusIndicator";
-
-enum KeybindProgressMode {
-    None,   // No current keybind is currently in progress
-    RMode,  // Rectangle and/or Register keybinding  [started by 'C-x+r'] is currently in progress
-    RModeS, // 'Save Region in register' keybinding [started by 'C-x+r+s'] is currently in progress
-    RModeI, // 'Insert Register content into buffer' keybinding [started by 'C-x+r+i'] is currently in progress
-}
 
 export class Editor {
 
     private killRing: KillRing;
-    private keybindProgressMode: KeybindProgressMode;
     private register: Register;
     private status: StatusIndicator;
 
     constructor() {
         this.status = new StatusIndicator();
         this.killRing = new KillRing();
-        this.keybindProgressMode = KeybindProgressMode.None;
         this.register = new Register();
     }
 
@@ -408,7 +399,7 @@ export class Editor {
 
             case Mode.NoKeyBinding:
             default:
-                this.keybindProgressMode = KeybindProgressMode.None;
+                this.status.deactivateTempModes();
                 this.status.setStatusBarPermanentMessage("");
                 break;
         }

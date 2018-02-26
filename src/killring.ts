@@ -1,6 +1,6 @@
 import { Range } from "vscode";
 
-export class KillRing {
+export default class KillRing {
   private readonly MAX_LENGTH = 60;
   private items: string[];
   private pointer: number;
