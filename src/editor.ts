@@ -1,10 +1,6 @@
 import * as vscode from "vscode";
 import { KillRing } from "./killring";
-import {
-    RectangleContent,
-    RegisterContent,
-    RegisterKind,
-} from "./registers";
+import Register, { RectangleContent, RegisterContent, RegisterKind } from "./registers";
 import * as sexp from "./sexp";
 import StatusIndicator, { Mode } from "./statusIndicator";
 
@@ -13,36 +9,29 @@ enum KeybindProgressMode {
     RMode,  // Rectangle and/or Register keybinding  [started by 'C-x+r'] is currently in progress
     RModeS, // 'Save Region in register' keybinding [started by 'C-x+r+s'] is currently in progress
     RModeI, // 'Insert Register content into buffer' keybinding [started by 'C-x+r+i'] is currently in progress
-    AMode,  // (FUTURE, TBD) Abbrev keybinding  [started by 'C-x+a'] is currently in progress
-    MacroRecordingMode,  // (FUTURE, TBD) Emacs macro recording [started by 'Ctrl-x+('] is currently in progress
 }
 
 export class Editor {
 
     private killRing: KillRing;
     private keybindProgressMode: KeybindProgressMode;
-    private registersStorage: { [key: string]: RegisterContent; };
+    private register: Register;
     private status: StatusIndicator;
 
     constructor() {
         this.status = new StatusIndicator();
         this.killRing = new KillRing();
         this.keybindProgressMode = KeybindProgressMode.None;
-        this.registersStorage = {};
+        this.register = new Register();
     }
 
     public abort = () => {
         this.status.setStatusBarMessage("Quit");
-        if (this.markMode()) {
-            this.toggleMarkMode();
-        }
+        this.status.deactivateTempModes();
     }
 
     public markMode = () => this.status.isModeActive(Mode.Mark);
 
-    public setStatusBarPermanentMessage = (text: string): vscode.Disposable => {
-        return vscode.window.setStatusBarMessage(text);
-    }
     public toggleMarkMode = () => {
         if (this.status.isModeActive(Mode.Mark)) {
             vscode.commands.executeCommand("cancelSelection");
@@ -298,7 +287,7 @@ export class Editor {
             const oldInsertionPoint = this.killRing.getLastInsertionPoint();
             const newRange = new vscode.Range(
                 oldInsertionPoint,
-                oldInsertionPoint.translate({ characterDelta: prevText.length }),
+                oldInsertionPoint.translate({ characterDelta: prevText.length })
             );
 
             editBuilder.replace(this.killRing.getLastRange(), prevText);
@@ -339,63 +328,62 @@ export class Editor {
     }
 
     public setRMode(): void {
-        this.keybindProgressMode = KeybindProgressMode.RMode;
-        this.status.toggleMode(Mode.Register);
+        this.status.activate(Mode.RegisterWait);
         return;
     }
 
     public onType(text: string): void {
         let fHandled = false;
-        switch (this.keybindProgressMode) {
-            case KeybindProgressMode.RMode:
+        switch (this.status.keybindingProgressMode()) {
+            case Mode.RegisterWait:
                 switch (text) {
                     // Rectangles
                     case "r":
                         this.status.setStatusBarMessage("'C-x r r' (Copy rectangle to register) is not supported.");
-                        this.keybindProgressMode = KeybindProgressMode.None;
+                        this.status.toggleMode(Mode.RegisterWait);
                         fHandled = true;
                         break;
 
                     case "k":
                         this.status.setStatusBarMessage("'C-x r k' (Kill rectangle) is not supported.");
-                        this.keybindProgressMode = KeybindProgressMode.None;
+                        this.status.toggleMode(Mode.RegisterWait);
                         fHandled = true;
                         break;
 
                     case "y":
                         this.status.setStatusBarMessage("'C-x r y' (Yank rectangle) is not supported.");
-                        this.keybindProgressMode = KeybindProgressMode.None;
+                        this.status.toggleMode(Mode.RegisterWait);
                         fHandled = true;
                         break;
 
                     case "o":
                         this.status.setStatusBarMessage("'C-x r o' (Open rectangle) is not supported.");
-                        this.keybindProgressMode = KeybindProgressMode.None;
+                        this.status.toggleMode(Mode.RegisterWait);
                         fHandled = true;
                         break;
 
                     case "c":
                         this.status.setStatusBarMessage("'C-x r c' (Blank out rectangle) is not supported.");
-                        this.keybindProgressMode = KeybindProgressMode.None;
+                        this.status.toggleMode(Mode.RegisterWait);
                         fHandled = true;
                         break;
 
                     case "t":
                         this.status.setStatusBarMessage("'C-x r t' (prefix each line with a string) is not supported.");
-                        this.keybindProgressMode = KeybindProgressMode.None;
+                        this.status.toggleMode(Mode.RegisterWait);
                         fHandled = true;
                         break;
 
                     // Registers
                     case "s":
-                        this.setStatusBarPermanentMessage("Copy to register:");
-                        this.keybindProgressMode = KeybindProgressMode.RModeS;
+                        this.status.setStatusBarPermanentMessage("Copy to register:");
+                        this.status.setKeybindingProgress(Mode.RegisterSave);
                         fHandled = true;
                         break;
 
                     case "i":
-                        this.setStatusBarPermanentMessage("Insert register:");
-                        this.keybindProgressMode = KeybindProgressMode.RModeI;
+                        this.status.setStatusBarPermanentMessage("Insert register:");
+                        this.status.setKeybindingProgress(Mode.RegisterInsert);
                         fHandled = true;
                         break;
 
@@ -404,26 +392,24 @@ export class Editor {
                 }
                 break;
 
-            case KeybindProgressMode.RModeS:
-                this.setStatusBarPermanentMessage("");
+            case Mode.RegisterSave:
+                this.status.setStatusBarPermanentMessage("");
                 this.SaveTextToRegister(text);
-                this.keybindProgressMode = KeybindProgressMode.None;
+                this.status.deactivateTempModes();
                 fHandled = true;
                 break;
 
-            case KeybindProgressMode.RModeI:
-                this.setStatusBarPermanentMessage("");
+            case Mode.RegisterInsert:
+                this.status.setStatusBarPermanentMessage("");
                 this.RestoreTextFromRegister(text);
-                this.keybindProgressMode = KeybindProgressMode.None;
+                this.status.deactivateTempModes();
                 fHandled = true;
                 break;
 
-            case KeybindProgressMode.AMode: // not supported [yet]
-            case KeybindProgressMode.MacroRecordingMode: // not supported [yet]
-            case KeybindProgressMode.None:
+            case Mode.NoKeyBinding:
             default:
                 this.keybindProgressMode = KeybindProgressMode.None;
-                this.setStatusBarPermanentMessage("");
+                this.status.setStatusBarPermanentMessage("");
                 break;
         }
 
@@ -443,28 +429,23 @@ export class Editor {
         if (range !== null) {
             const selectedText = vscode.window.activeTextEditor.document.getText(range);
             if (null !== selectedText) {
-                this.registersStorage[registerName] = RegisterContent.fromRegion(selectedText);
+                this.register.saveTextToRegister(registerName, selectedText);
             }
         }
+
         return;
     }
 
     public RestoreTextFromRegister(registerName: string): void {
-        vscode.commands.executeCommand("emacs.exitMarkMode"); // emulate Emacs
-        const obj: RegisterContent = this.registersStorage[registerName];
-        if (null === obj) {
+        this.status.deactivate(Mode.Mark);
+        const fromRegister = this.register.getTextFromRegister(registerName);
+        if (fromRegister !== null) {
+            vscode.window.activeTextEditor.edit((editBuilder) => {
+                editBuilder.insert(this.getSelection().active, fromRegister);
+            });
+        } else {
             this.status.setStatusBarMessage("Register does not contain text.");
-            return;
         }
-        if (RegisterKind.KText === obj.getRegisterKind()) {
-            const content: string | vscode.Position | RectangleContent = obj.getRegisterContent();
-            if (typeof content === "string") {
-                vscode.window.activeTextEditor.edit((editBuilder) => {
-                    editBuilder.insert(this.getSelection().active, content);
-                });
-            }
-        }
-        return;
     }
 
     private isRegion = (): boolean => {
@@ -491,10 +472,10 @@ export class Editor {
         const text = vscode.window.activeTextEditor.document.getText(range);
         const promises = [
             this.delete(range),
-            vscode.commands.executeCommand("emacs.exitMarkMode"),
         ];
 
         Promise.all(promises).then(() => {
+            this.status.deactivate(Mode.Mark);
             this.killRing.save(text);
         });
     }

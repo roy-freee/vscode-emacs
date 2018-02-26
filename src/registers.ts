@@ -41,3 +41,32 @@ export class RegisterContent {
         return this.content;
     }
 }
+
+export default class Register {
+    private storage: { [key: string]: RegisterContent; };
+
+    constructor() {
+        this.storage = {};
+    }
+
+    public saveTextToRegister(registerName: string, text: string): void {
+        if (registerName === null) {
+            return;
+        }
+
+        this.storage[registerName] = RegisterContent.fromRegion(text);
+    }
+
+    public getTextFromRegister(registerName: string): string {
+        const obj: RegisterContent = this.storage[registerName];
+        if (!obj) {
+            return null;
+        }
+
+        if (obj.getRegisterKind() !== RegisterKind.KText) {
+            return null;
+        } else {
+            return obj.getRegisterContent() as string;
+        }
+    }
+}

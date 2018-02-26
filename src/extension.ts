@@ -55,9 +55,9 @@ export function activate(context: vscode.ExtensionContext): void {
                 vscode.commands.executeCommand(
                     op.editor.markMode() ?
                     element + "Select" :
-                    element,
+                    element
                 );
-            }),
+            })
         );
     });
 
