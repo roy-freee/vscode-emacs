@@ -1,11 +1,18 @@
 # vscode-emacs-improved
 
-This project is a fork of the popular [Emacs Keymap](https://marketplace.visualstudio.com/items?itemName=hiro-sun.vscode-emacs) by hiro-sun. That project is no longer active and my goal was to add s-expression movement and selection as well as window management keybindings. Feel free to request features on the github page for this extension.
+This project is a fork of the popular [Emacs Keymap](https://marketplace.visualstudio.com/items?itemName=hiro-sun.vscode-emacs) by hiro-sun. That project is no longer active and my goal was to add meaningful additions to the project to make this extension behave more like an emacs **emulator**, instead of just a keymapper.
 
-## Operation
+## My improvements on the original project
 
-Use `Shift+DEL` to cut to clipboard, the `Ctrl+C` is not overridden.
-Use `Shift+Insert` to paste from clipboard.
+**S-expressions** was the first major addition I made. This extensnion allows movement via s-expressions, and killing s-expressions. This is most effective when editing `.lisp` files or any LISP dialect like Clojure. Experience with other languages may vary.
+
+**Proper kill-ring**: the support for kill-rings in hiro-sun's was inconsistent with the original emacs spec for the kill-ring. The kill-ring implemented in my extensnion can store the last 60 kills added to the ring. Yank-pop is also fully supported.
+
+**CUA Mode**: this minor mode allows users to keep their traditional copy paste shortcuts on windows (`C-c` and `C-v`). Note that as per the spec for CUA mode, these clipboard actions are only available when a region is highlighted. Note that `C-x` for cut is **not** supported. This is because VSCode won't recognise `C-x` as it is the beginning of a chord (if this is wrong, feel free to make an issue on the github page).
+
+**Rectangle mode**: though skeleton code exists on hiro-sun's to support rectangle mode, it was not finished. I've built on top of this solution and have implemented rectangle-kill and rectangle-yank.
+
+## Commands
 
 ### Move command
 
@@ -91,7 +98,6 @@ Use `Shift+Insert` to paste from clipboard.
 - `ctrl+b`: workbench.action.toggleSidebarVisibility => **Use `ctrl+alt+space` instead**;
 - `ctrl+space`: toggleSuggestionDetails, editor.action.triggerSuggest => **Use `ctrl+'` instead**;
 - `ctrl+x`: editor.action.clipboardCutAction => **Use `shift+delete` instead**;
-- `ctrl+v`: editor.action.clipboardPasteAction => **Use `shift+insert` instead**;
 - `ctrl+k`: editor.debug.action.showDebugHover, editor.action.trimTrailingWhitespace, editor.action.showHover, editor.action.removeCommentLine, editor.action.addCommentLine, editor.action.openDeclarationToTheSide;
 - `ctrl+y`: redo;
 - `ctrl+m`: editor.action.toggleTabFocusMode;
