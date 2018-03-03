@@ -19,11 +19,10 @@
     ],
     "keywords": [
         "emacs",
-        "shortcuts",
+        "emulator",
         "keybindings",
-        "behavior",
         "killring",
-        "cua"
+        "rectangle"
     ],
     "activationEvents": [
         "*"
