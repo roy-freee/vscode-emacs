@@ -334,6 +334,7 @@ export class Editor {
     }
 
     public setRMode(): void {
+        this.status.deactivate(Mode.RectangleMark);
         this.status.activate(Mode.Register);
         return;
     }
@@ -350,6 +351,51 @@ export class Editor {
         this.lastRectangularKill = str;
     }
 
+    public killRectangle(): void {
+        const selections = vscode.window.activeTextEditor.selections;
+        let str = "";
+        const deletes: Array<Thenable<boolean>> = [];
+
+        for (const s of selections) {
+            const lineText = vscode.window.activeTextEditor.document.getText(s);
+            str += `${lineText}\n`;
+            const asRange: vscode.Range = new vscode.Range(s.start, s.end);
+
+            deletes.push(this.delete(asRange));
+        }
+
+        this.lastRectangularKill = str;
+        Promise.all(deletes).then((value: boolean[]) => {
+            const allTrue = value.reduce((prev, curr) => prev && curr);
+            if (allTrue) {
+                this.status.setStatusBarMessage("Rectangle Saved!", 5000);
+            } else {
+                this.status.setStatusBarMessage("Error saving rectangle", 5000);
+            }
+        });
+    }
+
+    public yankRectangle(): void {
+        if (!this.lastRectangularKill) {
+            this.status.setStatusBarMessage("No rectangle has been saved", 4000);
+            return;
+        }
+
+        vscode.window.activeTextEditor.edit((editBuilder) => {
+            const currEditor = vscode.window.activeTextEditor;
+
+            // more than one selection
+            if (currEditor.selections.length > 1) {
+                const rectKillAsLines = this.lastRectangularKill.split("\n");
+                for (let i = 0; i < currEditor.selections.length; i++) {
+                    editBuilder.replace(currEditor.selections[i], rectKillAsLines[i]);
+                }
+            } else {
+                editBuilder.replace(currEditor.selection, this.lastRectangularKill);
+            }
+        });
+    }
+
     public onType(text: string): void {
         let fHandled = false;
         switch (this.status.keybindingProgressMode()) {
@@ -364,13 +410,15 @@ export class Editor {
                         break;
 
                     case "k":
-                        this.status.setStatusBarMessage("'C-x r k' (Kill rectangle) is not supported.");
+                        this.killRectangle();
+                        this.status.deactivate(Mode.RectangleMark);
                         this.status.deactivate(Mode.Register);
                         fHandled = true;
                         break;
 
                     case "y":
-                        this.status.setStatusBarMessage("'C-x r y' (Yank rectangle) is not supported.");
+                        this.yankRectangle();
+                        this.status.deactivate(Mode.RectangleMark);
                         this.status.deactivate(Mode.Register);
                         fHandled = true;
                         break;
@@ -424,16 +472,6 @@ export class Editor {
                 this.status.deactivateTempModes();
                 fHandled = true;
                 break;
-            case Mode.RectangleMark:
-                switch (text) {
-                    case "i":
-                        this.status.setKeybindingProgress(Mode.RegisterInsert);
-                        fHandled = true;
-                        break;
-
-                    default:
-                        break;
-                }
             case Mode.NoKeyBinding:
             default:
                 this.status.deactivateTempModes();

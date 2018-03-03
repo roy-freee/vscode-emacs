@@ -18,7 +18,7 @@ const IconMapper = {
   [Mode.Mark]: "markdown",
   [Mode.Cua]: "clippy",
   [Mode.Register]: "server",
-  [Mode.RectangleMark]: "note",
+  [Mode.RectangleMark]: "three-bars",
 };
 export default class StatusIndicator {
   private statusBarItem: StatusBarItem;
@@ -39,8 +39,8 @@ export default class StatusIndicator {
     this.refreshStatusBar();
   }
   public deactivate = (mode: Mode) => {
-    this.activeModes = this.activeModes.filter(i => i === mode);
-    this.statusBarIcons = this.statusBarIcons.filter(i => i === IconMapper[mode]);
+    this.activeModes = this.activeModes.filter(i => i !== mode);
+    this.statusBarIcons = this.statusBarIcons.filter(i => i !== IconMapper[mode]);
 
     this.refreshStatusBar();
   }
