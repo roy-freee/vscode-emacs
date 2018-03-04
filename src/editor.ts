@@ -49,40 +49,21 @@ export class Editor {
         }
     }
 
-    public cuaCut = () => {
-        if (this.status.isModeActive(Mode.Cua)) {
-            if (this.isRegion()) {
-                this.cut();
-                this.status.setStatusBarMessage("Region cut", 2000);
-            } else {
-                this.status.setStatusBarMessage("Not in region", 2000);
-            }
-        }
-    }
-    public cuaCopy = () => {
-        if (this.status.isModeActive(Mode.Cua)) {
-            if (this.isRegion()) {
-                this.copy();
-                this.status.setStatusBarMessage("Region copied", 2000);
-            } else {
-                this.status.setStatusBarMessage("Not in region", 2000);
-            }
-        }
-    }
-    public cuaPaste = () => {
-        if (this.status.isModeActive(Mode.Cua)) {
-            if (this.isRegion()) {
-                this.yank();
-                this.status.setStatusBarMessage("Region pasted", 2000);
-            } else {
-                this.status.setStatusBarMessage("Not in region", 2000);
-            }
-        } else {
-            vscode.commands.executeCommand("emacs.cursorPageDown");
-        }
-    }
     public toggleCuaMode = () => {
         this.status.toggleMode(Mode.Cua);
+    }
+
+    public validateCuaCommand = () => {
+        if (this.status.isModeActive(Mode.Cua)) {
+            if (this.isRegion()) {
+                return true;
+            } else {
+                this.status.setStatusBarMessage("Not in region", 2000);
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public changeCase = (casing: "upper" | "lower" | "capitalise", type: "position" | "region") => {
@@ -216,6 +197,10 @@ export class Editor {
      * Behave like Emacs kill command
      */
     public kill(): void {
+        if (!this.validateCuaCommand()) {
+            return;
+        }
+
         const promises = [
             vscode.commands.executeCommand("emacs.exitMarkMode"),
             vscode.commands.executeCommand("cursorEndSelect"),
@@ -234,33 +219,19 @@ export class Editor {
         });
     }
 
-    public copy(range: vscode.Range = null): boolean {
-        if (range === null) {
-            range = vscode.window.activeTextEditor.selection;
-            if (range === null) {
-                vscode.commands.executeCommand("emacs.exitMarkMode");
-                return false;
-            }
+    public copy(): void {
+        if (!this.validateCuaCommand()) {
+            return;
         }
 
+        const range = vscode.window.activeTextEditor.selection;
         this.killRing.save(vscode.window.activeTextEditor.document.getText(range));
         vscode.commands.executeCommand("emacs.exitMarkMode");
-        return true;
     }
 
-    public cut(): boolean {
-        const range: vscode.Range = this.getSelectionRange();
-
-        if (!this.copy(range)) {
-            return false;
-        }
-        this.delete(range);
-        return true;
-    }
-
-    public yank(): boolean {
-        if (this.killRing.isEmpty()) {
-            return false;
+    public yank(): void {
+        if (!this.validateCuaCommand() || this.killRing.isEmpty()) {
+            return;
         }
 
         vscode.window.activeTextEditor.edit((editBuilder) => {
@@ -271,7 +242,6 @@ export class Editor {
             editBuilder.insert(this.getSelection().active, topText);
             this.killRing.setLastInsertedRange(textRange);
         });
-        return true;
     }
 
     public yankPop() {

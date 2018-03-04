@@ -26,7 +26,7 @@ export class Operation {
                 this.editor.kill();
             },
             "killRegion": () => {
-                this.editor.cut();
+                this.editor.kill();
             },
             "C-x_C-o": () => {
                 this.editor.deleteBlankLines();
@@ -49,13 +49,13 @@ export class Operation {
                 this.editor.toggleCuaMode();
             },
             "cuaCut": () => {
-                this.editor.cuaCut();
+                this.editor.kill();
             },
             "cuaPaste": () => {
-                this.editor.cuaPaste();
+                this.editor.yank();
             },
             "cuaCopy": () => {
-                this.editor.cuaCopy();
+                this.editor.copy();
             },
 
             // case-switching
