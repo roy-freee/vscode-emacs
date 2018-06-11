@@ -10,12 +10,17 @@ export class Editor {
   private register: Register;
   private status: StatusIndicator;
   private lastRectangularKill: string;
+  private isKillRepeated: boolean;
 
   constructor() {
     this.status = new StatusIndicator();
     this.killRing = new KillRing();
     this.register = new Register();
     this.lastRectangularKill = null;
+    this.isKillRepeated = false;
+    vscode.window.onDidChangeTextEditorSelection(() => {
+      this.isKillRepeated = false;
+    });
   }
 
   public abort = () => {
@@ -201,6 +206,7 @@ export class Editor {
       return;
     }
 
+    const saveIsKillRepeated = this.isKillRepeated;
     const promises = [
       vscode.commands.executeCommand("emacs.exitMarkMode"),
       vscode.commands.executeCommand("cursorEndSelect"),
@@ -211,8 +217,9 @@ export class Editor {
       const range = new vscode.Range(selection.start, selection.end);
 
       this.setSelection(range.start, range.start);
+      this.isKillRepeated = saveIsKillRepeated;
       if (range.isEmpty) {
-        this.killEndOfLine();
+        this.killEndOfLine(saveIsKillRepeated);
       } else {
         this.killText(range);
       }
@@ -242,6 +249,8 @@ export class Editor {
       editBuilder.insert(this.getSelection().active, topText);
       this.killRing.setLastInsertedRange(textRange);
     });
+
+    this.isKillRepeated = false;
   }
 
   public yankPop() {
@@ -484,19 +493,27 @@ export class Editor {
     return !currRegion.start.isEqual(currRegion.end);
   }
 
-  private killEndOfLine(): void {
+  private killEndOfLine(killRepeated: boolean): void {
     const currentCursorPosition = vscode.window.activeTextEditor.selection.active;
     vscode.commands.executeCommand("emacs.cursorEnd")
     .then(() => {
       const newCursorPos = vscode.window.activeTextEditor.selection.active;
       const rangeTillEnd = new vscode.Range(currentCursorPosition, newCursorPos);
+      if (rangeTillEnd.isEmpty) {
+        vscode.commands.executeCommand("editor.action.deleteLines").then(() => {
+          this.killRing.append("\n");
+        });
+      }
+
       return vscode.window.activeTextEditor.document.getText(rangeTillEnd);
     }).then((text: string) => {
       vscode.window.activeTextEditor.selection.active = currentCursorPosition;
-      vscode.commands.executeCommand("deleteAllRight").then(() => {
+      vscode.commands.executeCommand("deleteRight").then(() => {
         this.killRing.save(text);
       });
     });
+
+    this.toggleMarkMode();
   }
 
   private killText(range: vscode.Range): void {

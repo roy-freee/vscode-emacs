@@ -22,6 +22,10 @@ export default class KillRing {
     return this.items[(this.pointer - 1) % this.MAX_LENGTH];
   }
 
+  public append = (str: string) => {
+    this.items[this.pointer] += str;
+  }
+
   public forward = () => {
     if (this.items[(this.pointer + 1) % this.MAX_LENGTH] === undefined) {
       this.pointer = 0;
