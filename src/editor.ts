@@ -237,6 +237,16 @@ export class Editor {
     });
   }
 
+  public killRegion(): void {
+    const selection = this.getSelection();
+    const range = new vscode.Range(selection.start, selection.end);
+
+    if (!range.isEmpty) {
+      this.killText(range, false);
+    }
+    this.lastKill = range.start;
+  }
+
   public copy(): void {
     if (!this.validateCuaCommand()) {
       return;
