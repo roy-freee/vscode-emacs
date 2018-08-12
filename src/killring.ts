@@ -23,7 +23,9 @@ export default class KillRing {
   }
 
   public append = (str: string) => {
-    this.items[this.pointer] += str;
+    if (this.pointer > 0) {
+      this.items[this.pointer - 1] += str;
+    }
   }
 
   public forward = () => {

@@ -26,7 +26,7 @@ export class Operation {
         this.editor.kill();
       },
       "killRegion": () => {
-        this.editor.kill();
+        this.editor.killRegion();
       },
       "C-x_C-o": () => {
         this.editor.deleteBlankLines();

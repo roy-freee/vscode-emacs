@@ -10,16 +10,25 @@ export class Editor {
   private register: Register;
   private status: StatusIndicator;
   private lastRectangularKill: string;
-  private isKillRepeated: boolean;
+  private lastKill: vscode.Position;
 
   constructor() {
     this.status = new StatusIndicator();
     this.killRing = new KillRing();
     this.register = new Register();
     this.lastRectangularKill = null;
-    this.isKillRepeated = false;
-    vscode.window.onDidChangeTextEditorSelection(() => {
-      this.isKillRepeated = false;
+    this.lastKill = null;
+
+    vscode.window.onDidChangeTextEditorSelection((event) => {
+      if (this.lastKill) {
+        const position = event.selections[0].isReversed ? event.selections[0].active : event.selections[0].anchor;
+        if (!position.isEqual(this.lastKill)) {
+          this.lastKill = null;
+        }
+      }
+    });
+    vscode.window.onDidChangeActiveTextEditor(() => {
+      this.lastKill = null;
     });
   }
 
@@ -206,7 +215,6 @@ export class Editor {
       return;
     }
 
-    const saveIsKillRepeated = this.isKillRepeated;
     const promises = [
       vscode.commands.executeCommand("emacs.exitMarkMode"),
       vscode.commands.executeCommand("cursorEndSelect"),
@@ -216,14 +224,27 @@ export class Editor {
       const selection = this.getSelection();
       const range = new vscode.Range(selection.start, selection.end);
 
+      const isKillRepeated = this.lastKill && range.start.isEqual(this.lastKill);
+
       this.setSelection(range.start, range.start);
-      this.isKillRepeated = saveIsKillRepeated;
+
       if (range.isEmpty) {
-        this.killEndOfLine(saveIsKillRepeated);
+        this.killEndOfLine(isKillRepeated);
       } else {
-        this.killText(range);
+        this.killText(range, isKillRepeated);
       }
+      this.lastKill = range.start;
     });
+  }
+
+  public killRegion(): void {
+    const selection = this.getSelection();
+    const range = new vscode.Range(selection.start, selection.end);
+
+    if (!range.isEmpty) {
+      this.killText(range, false);
+    }
+    this.lastKill = range.start;
   }
 
   public copy(): void {
@@ -249,8 +270,7 @@ export class Editor {
       editBuilder.insert(this.getSelection().active, topText);
       this.killRing.setLastInsertedRange(textRange);
     });
-
-    this.isKillRepeated = false;
+    this.lastKill = null;
   }
 
   public yankPop() {
@@ -509,14 +529,14 @@ export class Editor {
     }).then((text: string) => {
       vscode.window.activeTextEditor.selection.active = currentCursorPosition;
       vscode.commands.executeCommand("deleteRight").then(() => {
-        this.killRing.save(text);
+        killRepeated ? this.killRing.append(text) : this.killRing.save(text);
       });
     });
 
     this.toggleMarkMode();
   }
 
-  private killText(range: vscode.Range): void {
+  private killText(range: vscode.Range, killRepeated: boolean): void {
     const text = vscode.window.activeTextEditor.document.getText(range);
     const promises = [
       this.delete(range),
@@ -524,7 +544,7 @@ export class Editor {
 
     Promise.all(promises).then(() => {
       this.status.deactivate(Mode.Mark);
-      this.killRing.save(text);
+      killRepeated ? this.killRing.append(text) : this.killRing.save(text);
     });
   }
 
