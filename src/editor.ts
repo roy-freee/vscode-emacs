@@ -261,13 +261,12 @@ export class Editor {
     if (!this.validateCuaCommand() || this.killRing.isEmpty()) {
       return;
     }
-
+    const currPos = vscode.window.activeTextEditor.selection.start;
     vscode.window.activeTextEditor.edit((editBuilder) => {
       const topText = this.killRing.top();
-      const currPos = vscode.window.activeTextEditor.selection.start;
-      const textRange = new vscode.Range(currPos, currPos.translate({ characterDelta: topText.length }));
-
       editBuilder.insert(this.getSelection().active, topText);
+    }).then(() => {
+      const textRange = new vscode.Range(currPos, vscode.window.activeTextEditor.selection.end);
       this.killRing.setLastInsertedRange(textRange);
     });
     this.lastKill = null;
@@ -286,17 +285,15 @@ export class Editor {
       return false;
     }
 
+    const oldInsertionPoint = this.killRing.getLastInsertionPoint();
     vscode.window.activeTextEditor.edit((editBuilder) => {
       this.killRing.backward();
       const prevText = this.killRing.top();
-      const oldInsertionPoint = this.killRing.getLastInsertionPoint();
-      const newRange = new vscode.Range(
-        oldInsertionPoint,
-        oldInsertionPoint.translate({ characterDelta: prevText.length })
-      );
-
       editBuilder.replace(this.killRing.getLastRange(), prevText);
-      this.killRing.setLastInsertedRange(newRange);
+    }).then(() => {
+      const textRange = new vscode.Range(oldInsertionPoint, vscode.window.activeTextEditor.selection.end);
+      this.killRing.setLastInsertedRange(textRange);
+      vscode.window.activeTextEditor.selection = new vscode.Selection(textRange.start, textRange.end);
     });
     return true;
   }
