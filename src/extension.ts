@@ -73,14 +73,13 @@ export function activate(context: vscode.ExtensionContext): void {
   });
 
   // 'type' is not an "emacs." command and should be registered separately
-  context.subscriptions.push(vscode.commands.registerCommand("type", args => {
-    if (!vscode.window.activeTextEditor) {
-      return;
-    }
-    op.onType(args.text);
-  }));
+  // disable hook, I don't use this feature
+  // context.subscriptions.push(vscode.commands.registerCommand("type", args => {
+  //   if (vscode.window.activeTextEditor) {
+  //     op.onType(args.text);
+  //   }
+  // }));
 }
-
 // export function deactivate(): void {
 // }
 
