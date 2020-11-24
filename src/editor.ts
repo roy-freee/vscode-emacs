@@ -254,6 +254,7 @@ export class Editor {
 
     const range = vscode.window.activeTextEditor.selection;
     this.killRing.save(vscode.window.activeTextEditor.document.getText(range));
+    vscode.commands.executeCommand("editor.action.clipboardCopyAction");
     vscode.commands.executeCommand("emacs.exitMarkMode");
   }
 
@@ -262,10 +263,11 @@ export class Editor {
       return;
     }
     const currPos = vscode.window.activeTextEditor.selection.start;
-    vscode.window.activeTextEditor.edit((editBuilder) => {
-      const topText = this.killRing.top();
-      editBuilder.insert(this.getSelection().active, topText);
-    }).then(() => {
+    // yank always respect clipboard contents
+    vscode.env.clipboard.readText().then(text =>
+      vscode.window.activeTextEditor.edit(editBuilder => editBuilder.insert(this.getSelection().active, text))
+    ).then(() => {
+      this.killRing.top();  // for yankpop
       const textRange = new vscode.Range(currPos, vscode.window.activeTextEditor.selection.end);
       this.killRing.setLastInsertedRange(textRange);
     });
@@ -287,8 +289,8 @@ export class Editor {
 
     const oldInsertionPoint = this.killRing.getLastInsertionPoint();
     vscode.window.activeTextEditor.edit((editBuilder) => {
-      this.killRing.backward();
       const prevText = this.killRing.top();
+      this.killRing.backward();
       editBuilder.replace(this.killRing.getLastRange(), prevText);
     }).then(() => {
       const textRange = new vscode.Range(oldInsertionPoint, vscode.window.activeTextEditor.selection.end);
@@ -535,14 +537,13 @@ export class Editor {
 
   private killText(range: vscode.Range, killRepeated: boolean): void {
     const text = vscode.window.activeTextEditor.document.getText(range);
-    const promises = [
-      this.delete(range),
-    ];
 
-    Promise.all(promises).then(() => {
+   vscode.env.clipboard.writeText(text).then(() => {
+     this.delete(range)
+   }).then(() => {
       this.status.deactivate(Mode.Mark);
       killRepeated ? this.killRing.append(text) : this.killRing.save(text);
-    });
+   })
   }
 
   private delete(range: vscode.Range = null): Thenable<boolean> {

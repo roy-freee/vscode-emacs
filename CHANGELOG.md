@@ -1,5 +1,9 @@
 # Changelog
 
+## roy-ht 0.2.3
+
+- kill ringのデフォをclipboardにした
+
 ## 0.2.7
 
 - Added Kill-ring support
